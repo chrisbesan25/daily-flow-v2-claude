@@ -106,6 +106,25 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .cnc{background:var(--surface);color:#475569}
 .cfd{background:var(--danger);color:#fff}
 
+/* Dark card variants */
+.tc.dark .ttx{color:#fff}
+.tc.dark .tnp{color:rgba(255,255,255,.6)}
+.tc.dark .tei{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+.tc.dark .mb{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6)}
+.tc.dark .ab{color:rgba(255,255,255,.6)}
+.tc.dark .na{border-top-color:rgba(255,255,255,.15)}
+.tc.dark .nta{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.1);color:#fff}
+.tc.dark .nta::placeholder{color:rgba(255,255,255,.4)}
+
+/* Color grid in bottom sheet */
+.sba{background:#F8FAFC;color:#334155}.sba svg{color:var(--pro)}
+.clbl{font-size:9px;text-transform:uppercase;letter-spacing:2px;font-weight:800;color:var(--text3);margin-bottom:8px;font-family:var(--fd)}
+.cgrd{display:flex;flex-wrap:wrap;gap:8px}
+.cdot{width:28px;height:28px;border-radius:50%;border:2px solid;cursor:pointer;transition:transform .15s;display:flex;align-items:center;justify-content:center}
+.cdot:hover{transform:scale(1.15)}
+.cdot svg{width:12px;height:12px}
+.sdiv{height:1px;background:#F1F5F9;margin:14px 0}
+
 /* Empty state */
 .es{text-align:center;padding:60px 20px;opacity:.12;display:flex;flex-direction:column;align-items:center;gap:10px;animation:fadeIn .5s}
 .es svg{width:56px;height:56px}
@@ -148,6 +167,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <symbol id="i-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
 <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></symbol>
 <symbol id="i-inb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
 </svg>
 
 <script type="module">
@@ -165,6 +185,9 @@ const CATS=[
   {id:"pro",label:"Pro",color:"#0052FF"},
   {id:"trash",label:"Corbeille",color:"#64748B"}
 ];
+
+const COLORS=["#FFFFFF","#3B82F6","#6366F1","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#0EA5E9","#D946EF","#F43F5E","#84CC16"];
+const isDark=v=>v!=="#FFFFFF"&&v!=="#EAB308"&&v!=="#84CC16";
 
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const ic=id=>`<svg><use href="#${id}"/></svg>`;
@@ -370,9 +393,13 @@ function render(){
   let html="";
   const card=(t,faded)=>{
     const cc=CATS.find(c=>c.id===t.category)?.color||"#64748B";
-    const cls=["tc",justAdded===t.id?"ani":""].filter(Boolean).join(" ");
+    const bgColor=t.color||"#FFFFFF";
+    const dark=isDark(bgColor)&&bgColor!=="#FFFFFF";
+    const topC=bgColor==="#FFFFFF"?cc:bgColor;
+    const textColor=dark?"#fff":(faded?"#B0B8C4":"var(--text)");
+    const cls=["tc",justAdded===t.id?"ani":"",dark?"dark":""].filter(Boolean).join(" ");
 
-    const tbar=tab!=="trash"?`<div class="tbar" style="background:${cc};opacity:${faded?.3:.85}"></div>`:"";
+    const tbar=tab!=="trash"?`<div class="tbar" style="background:${topC};opacity:${faded?.3:.85}"></div>`:"";
 
     let ck="";
     if(tab!=="trash"){
@@ -381,7 +408,7 @@ function render(){
         const pl=justDone===t.id?`<span class="pl" style="border-color:${cc}"></span>`:"";
         ck=`<button class="ckb" data-ck="${t.id}">${pl}<svg class="${bn}" style="color:var(--success)">${ic("i-cc")}</svg></button>`;
       }else{
-        ck=`<button class="ckb" data-ck="${t.id}"><svg style="color:${cc};opacity:.3">${ic("i-ci")}</svg></button>`;
+        ck=`<button class="ckb" data-ck="${t.id}"><svg style="color:${dark?"rgba(255,255,255,.4)":cc};opacity:${dark?1:.3}">${ic("i-ci")}</svg></button>`;
       }
     }
 
@@ -390,11 +417,11 @@ function render(){
       txt=`<div class="tcon"><input class="tei" data-ei="${t.id}" value="${esc(t.text)}"></div>`;
     }else{
       const np=t.notes?`<div class="tnp">${esc(t.notes)}</div>`:"";
-      txt=`<div class="tcon" data-ed="${t.id}"><div class="ttx" style="color:${faded?"#B0B8C4":"var(--text)"}">${esc(t.text)}</div>${np}</div>`;
+      txt=`<div class="tcon" data-ed="${t.id}"><div class="ttx" style="color:${faded?(dark?"rgba(255,255,255,.4)":"#B0B8C4"):textColor}">${esc(t.text)}</div>${np}</div>`;
     }
 
-    const nbg=t.notes?"rgba(0,82,255,.08)":"transparent";
-    const ncol=t.notes?"#0052FF":"#CBD5E1";
+    const nbg=t.notes?(dark?"rgba(255,255,255,.15)":"rgba(0,82,255,.08)"):"transparent";
+    const ncol=t.notes?(dark?"rgba(255,255,255,.8)":"#0052FF"):(dark?"rgba(255,255,255,.3)":"#CBD5E1");
     const nb=tab!=="trash"?`<button class="ab" style="background:${nbg};color:${ncol}" data-nt="${t.id}">${ic("i-ft")}</button>`:"";
     const mb=`<button class="mb" data-sh="${t.id}">${ic("i-dot")}</button>`;
 
@@ -403,7 +430,7 @@ function render(){
       noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea></div>`;
     }
 
-    return`<div class="${cls}" data-tid="${t.id}" style="opacity:${faded?.5:1}">${tbar}<div class="trow">${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div>`;
+    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}">${tbar}<div class="trow">${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div>`;
   };
 
   active.forEach(t=>{html+=card(t,false)});
@@ -477,6 +504,13 @@ function renderSheet(){
   let h=`<div class="sht">${esc(t.text)}</div>`;
 
   if(!isTrash){
+    h+=`<button class="sbtn sba" data-sa="agenda">${ic("i-cal")} Ajouter à Google Agenda</button>`;
+    h+=`<div style="margin-top:14px"><div class="clbl">Couleur</div><div class="cgrd">`;
+    COLORS.forEach(c=>{
+      const sel=(t.color||"#FFFFFF")===c;
+      h+=`<button class="cdot" style="background:${c==="#FFFFFF"?"#fff":c};border-color:${sel?"#1E293B":"#E2E8F0"};box-shadow:${sel?"0 0 0 2px rgba(30,41,59,.3)":"none"}" data-sc="${c}">${sel?`<svg style="color:${c==="#FFFFFF"?"#475569":"#fff"}"><use href="#i-chk"/></svg>`:""}</button>`;
+    });
+    h+=`</div></div><div class="sdiv"></div>`;
     h+=`<button class="sbtn sbd" data-sa="del">${ic("i-trash")} Corbeille</button>`;
   }else{
     h+=`<button class="sbtn sbr" data-sa="rest">${ic("i-undo")} Restaurer</button>`;
@@ -491,12 +525,21 @@ function renderSheet(){
 
   bd.querySelectorAll("[data-sa]").forEach(b=>{b.onclick=()=>{
     const a=b.dataset.sa;
-    if(a==="del")softDelete(sheetId);
+    if(a==="agenda"){
+      const agUrl=`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t.text)}`;
+      window.open(agUrl,"_blank");closeSheet();
+    }
+    else if(a==="del")softDelete(sheetId);
     else if(a==="rest")restoreTask(sheetId);
     else if(a==="cdel"){confirmId=sheetId;renderSheet()}
     else if(a==="cnc"){confirmId=null;renderSheet()}
     else if(a==="pdel")permDelete(sheetId);
     else if(a==="close")closeSheet();
+  }});
+  // Color dots
+  bd.querySelectorAll("[data-sc]").forEach(d=>{d.onclick=()=>{
+    updTask(sheetId,{color:d.dataset.sc});
+    renderSheet();
   }});
 }
 
