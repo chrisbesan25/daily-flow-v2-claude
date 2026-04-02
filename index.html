@@ -374,7 +374,7 @@ function softDelete(id){
 
 function restoreTask(id){
   updTask(id,{deleted:false,deleted_at:null});
-  closeSheet();
+  if(sheetId)closeSheet();
 }
 
 function permDelete(id){
@@ -551,14 +551,29 @@ function initSwipe(){
       card.classList.remove("swiping");
       const tid=card.dataset.tid;
       if(dx<-THRESHOLD){
-        card.style.animation="swipeOutLeft .3s forwards";
-        card.addEventListener("animationend",()=>{
-          const t=tasks.find(t=>t.id===tid);
-          if(t&&!t.deleted)updTask(tid,{deleted:true,deleted_at:now()});
-        },{once:true});
-      }else if(dx>THRESHOLD&&tab!=="trash"){
-        card.style.animation="swipeOutRight .3s forwards";
-        card.addEventListener("animationend",()=>toggleTask(tid),{once:true});
+        if(tab==="trash"){
+          // In trash: swipe left → open confirm delete sheet
+          content.style.transition="transform .2s";content.style.transform="translateX(0)";
+          bgLeft.style.opacity="0";
+          setTimeout(()=>{content.style.transition=""},250);
+          confirmId=tid;sheetId=tid;openSheet(tid);
+        }else{
+          // Normal: swipe left → soft delete
+          card.style.animation="swipeOutLeft .3s forwards";
+          card.addEventListener("animationend",()=>{
+            updTask(tid,{deleted:true,deleted_at:now()});
+          },{once:true});
+        }
+      }else if(dx>THRESHOLD){
+        if(tab==="trash"){
+          // In trash: swipe right → restore
+          card.style.animation="swipeOutRight .3s forwards";
+          card.addEventListener("animationend",()=>restoreTask(tid),{once:true});
+        }else{
+          // Normal: swipe right → toggle check
+          card.style.animation="swipeOutRight .3s forwards";
+          card.addEventListener("animationend",()=>toggleTask(tid),{once:true});
+        }
       }else{
         content.style.transition="transform .2s";content.style.transform="translateX(0)";
         bgLeft.style.opacity="0";bgRight.style.opacity="0";
