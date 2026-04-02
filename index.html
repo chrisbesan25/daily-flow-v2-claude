@@ -270,6 +270,8 @@ function handleRemote(payload){
   }
   tasks.sort((a,b)=>(a.position||0)-(b.position||0));
   saveLocal();
+  // Don't re-render if user is typing in a note textarea
+  if(noteId&&document.activeElement&&document.activeElement.matches("[data-ni]"))return;
   render();
 }
 
