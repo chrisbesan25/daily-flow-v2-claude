@@ -57,10 +57,18 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 #abtn:disabled{opacity:.25;box-shadow:none;cursor:default}
 #abtn svg{width:20px;height:20px}
 
+@keyframes swipeOutLeft{to{transform:translateX(-120%);opacity:0}}
+@keyframes swipeOutRight{to{transform:translateX(120%);opacity:0}}
+
 /* Task cards */
 #tl{display:flex;flex-direction:column;gap:6px}
-.tc{position:relative;padding:14px 12px 12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 8px rgba(0,0,0,.04);transition:opacity .4s;overflow:hidden}
+.tc{position:relative;padding:14px 12px 12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 8px rgba(0,0,0,.04);transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s,opacity .4s;overflow:hidden;touch-action:pan-y}
 .tc.ani{animation:slideUp .4s cubic-bezier(.22,1,.36,1)}
+.tc.swiping{transition:none!important}
+.tc .swipe-bg{position:absolute;inset:0;border-radius:16px;display:flex;align-items:center;padding:0 24px;font-size:24px;z-index:0;opacity:0;transition:opacity .15s}
+.tc .swipe-bg.left{background:var(--danger);justify-content:flex-end}
+.tc .swipe-bg.right{background:var(--success);justify-content:flex-start}
+.tc .swipe-content{position:relative;z-index:2}
 .tbar{position:absolute;top:0;left:12px;right:12px;height:3px;border-radius:0 0 3px 3px;z-index:5;transition:opacity .4s}
 .tc.drg{opacity:.55;transform:scale(1.03);box-shadow:0 20px 50px rgba(0,0,0,.12);z-index:50}
 .dh{padding:3px;color:#CBD5E1;cursor:grab;touch-action:none;display:flex;flex-shrink:0;border:none;background:0}
@@ -442,7 +450,7 @@ function render(){
       noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea></div>`;
     }
 
-    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div>`;
+    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}"><div class="swipe-bg left">🗑</div><div class="swipe-bg right">✓</div><div class="swipe-content">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div></div>`;
   };
 
   active.forEach(t=>{html+=card(t,false)});
@@ -499,6 +507,74 @@ function bindCards(){
     dragId=card.dataset.tid;isDragging=true;
     card.classList.add("drg");card.style.touchAction="none";
   }});
+
+  // Swipe
+  initSwipe();
+}
+
+// ============================================================
+// SWIPE
+// ============================================================
+function initSwipe(){
+  $$(".tc").forEach(card=>{
+    let startX=0,startY=0,dx=0,locked=false;
+    const THRESHOLD=100;
+    const content=card.querySelector(".swipe-content");
+    const bgLeft=card.querySelector(".swipe-bg.left");
+    const bgRight=card.querySelector(".swipe-bg.right");
+    if(!content)return;
+
+    const onStart=e=>{
+      if(dragId)return;
+      if(e.target.closest(".dh,.ckb,.ab,.mb,.nta,.tei,input,button,textarea"))return;
+      const pt=e.touches?e.touches[0]:e;
+      startX=pt.clientX;startY=pt.clientY;dx=0;locked=false;
+      card.classList.add("swiping");
+    };
+    const onMove=e=>{
+      if(!card.classList.contains("swiping")||dragId)return;
+      const pt=e.touches?e.touches[0]:e;
+      const mx=pt.clientX-startX,my=pt.clientY-startY;
+      if(!locked){
+        if(Math.abs(my)>Math.abs(mx)&&Math.abs(my)>10){card.classList.remove("swiping");return}
+        if(Math.abs(mx)>10)locked=true;else return;
+      }
+      if(locked)e.preventDefault();
+      dx=mx;
+      content.style.transform=`translateX(${dx}px)`;
+      if(dx<-30){bgLeft.style.opacity="1";bgRight.style.opacity="0"}
+      else if(dx>30){bgRight.style.opacity="1";bgLeft.style.opacity="0"}
+      else{bgLeft.style.opacity="0";bgRight.style.opacity="0"}
+    };
+    const onEnd=()=>{
+      if(!card.classList.contains("swiping"))return;
+      card.classList.remove("swiping");
+      const tid=card.dataset.tid;
+      if(dx<-THRESHOLD){
+        card.style.animation="swipeOutLeft .3s forwards";
+        card.addEventListener("animationend",()=>{
+          const t=tasks.find(t=>t.id===tid);
+          if(t&&!t.deleted)updTask(tid,{deleted:true,deleted_at:now()});
+        },{once:true});
+      }else if(dx>THRESHOLD&&tab!=="trash"){
+        card.style.animation="swipeOutRight .3s forwards";
+        card.addEventListener("animationend",()=>toggleTask(tid),{once:true});
+      }else{
+        content.style.transition="transform .2s";content.style.transform="translateX(0)";
+        bgLeft.style.opacity="0";bgRight.style.opacity="0";
+        setTimeout(()=>{content.style.transition=""},250);
+      }
+      dx=0;locked=false;
+    };
+
+    card.addEventListener("touchstart",onStart,{passive:true});
+    card.addEventListener("touchmove",onMove,{passive:false});
+    card.addEventListener("touchend",onEnd);
+    card.addEventListener("mousedown",onStart);
+    card.addEventListener("mousemove",onMove);
+    card.addEventListener("mouseup",onEnd);
+    card.addEventListener("mouseleave",onEnd);
+  });
 }
 
 // ============================================================
