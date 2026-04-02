@@ -62,6 +62,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .tc{position:relative;padding:14px 12px 12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 8px rgba(0,0,0,.04);transition:opacity .4s;overflow:hidden}
 .tc.ani{animation:slideUp .4s cubic-bezier(.22,1,.36,1)}
 .tbar{position:absolute;top:0;left:12px;right:12px;height:3px;border-radius:0 0 3px 3px;z-index:5;transition:opacity .4s}
+.tc.drg{opacity:.55;transform:scale(1.03);box-shadow:0 20px 50px rgba(0,0,0,.12);z-index:50}
+.dh{padding:3px;color:#CBD5E1;cursor:grab;touch-action:none;display:flex;flex-shrink:0;border:none;background:0}
+.dh:active{cursor:grabbing}
+.dh svg{width:16px;height:16px}
+.tc.dark .dh{color:rgba(255,255,255,.4)}
 .trow{display:flex;align-items:center;gap:6px;position:relative;z-index:10}
 .ckb{flex-shrink:0;background:0;border:none;cursor:pointer;padding:0;display:flex;position:relative}
 .ckb svg{width:24px;height:24px}
@@ -159,6 +164,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <svg style="display:none">
 <symbol id="i-cc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
 <symbol id="i-ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></symbol>
+<symbol id="i-grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></symbol>
 <symbol id="i-ft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 13H8M16 17H8M16 13h-2"/></symbol>
 <symbol id="i-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
@@ -208,6 +214,8 @@ let sheetId=null;   // bottom sheet open for this task
 let confirmId=null; // confirm permanent delete
 let justAdded=null;
 let justDone=null;
+let dragId=null;
+let isDragging=false;
 
 // User ID — from URL param, persistent
 const urlUid=new URLSearchParams(location.search).get("uid");
@@ -270,8 +278,9 @@ function handleRemote(payload){
   }
   tasks.sort((a,b)=>(a.position||0)-(b.position||0));
   saveLocal();
-  // Don't re-render if user is typing in a note textarea
+  // Don't re-render if user is typing in a note textarea or dragging
   if(noteId&&document.activeElement&&document.activeElement.matches("[data-ni]"))return;
+  if(isDragging)return;
   render();
 }
 
@@ -402,6 +411,7 @@ function render(){
     const cls=["tc",justAdded===t.id?"ani":"",dark?"dark":""].filter(Boolean).join(" ");
 
     const tbar=tab!=="trash"?`<div class="tbar" style="background:${topC};opacity:${faded?.3:.85}"></div>`:"";
+    const dh=tab!=="trash"?`<button class="dh" data-dg="${t.id}">${ic("i-grip")}</button>`:"";
 
     let ck="";
     if(tab!=="trash"){
@@ -432,7 +442,7 @@ function render(){
       noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea></div>`;
     }
 
-    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}">${tbar}<div class="trow">${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div>`;
+    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div>`;
   };
 
   active.forEach(t=>{html+=card(t,false)});
@@ -481,6 +491,14 @@ function bindCards(){
 
   // Bottom sheet
   $$("[data-sh]").forEach(b=>{b.onclick=e=>{e.stopPropagation();openSheet(b.dataset.sh)}});
+
+  // Drag handles
+  $$("[data-dg]").forEach(h=>{h.onpointerdown=e=>{
+    e.preventDefault();
+    const card=h.closest(".tc");if(!card)return;
+    dragId=card.dataset.tid;isDragging=true;
+    card.classList.add("drg");card.style.touchAction="none";
+  }});
 }
 
 // ============================================================
@@ -602,6 +620,38 @@ async function init(){
 
   window.addEventListener("online",()=>{updDot();if(syncing)pushAll()});
   window.addEventListener("offline",updDot);
+
+  // Global drag listeners
+  document.addEventListener("pointermove",ev=>{
+    if(!dragId)return;ev.preventDefault();
+    const tl=$("#tl");if(!tl)return;
+    const dragCard=tl.querySelector(`[data-tid="${dragId}"]`);if(!dragCard)return;
+    const cards=[...tl.querySelectorAll(".tc")];
+    for(const c of cards){
+      if(c===dragCard)continue;
+      const r=c.getBoundingClientRect();const mid=r.top+r.height/2;
+      if(ev.clientY<mid&&c.compareDocumentPosition(dragCard)&Node.DOCUMENT_POSITION_FOLLOWING){tl.insertBefore(dragCard,c);break}
+      else if(ev.clientY>mid&&c.compareDocumentPosition(dragCard)&Node.DOCUMENT_POSITION_PRECEDING){tl.insertBefore(dragCard,c.nextSibling);break}
+    }
+  });
+  document.addEventListener("pointerup",async()=>{
+    if(!dragId)return;
+    const tl=$("#tl");
+    const dragCard=tl?tl.querySelector(`[data-tid="${dragId}"]`):null;
+    if(dragCard)dragCard.classList.remove("drg");
+    // Read new order from DOM
+    if(tl){
+      const newOrder=[...tl.querySelectorAll(".tc")].map(c=>c.dataset.tid);
+      const taskMap=new Map(tasks.map(t=>[t.id,t]));
+      newOrder.forEach((id,i)=>{const t=taskMap.get(id);if(t)t.position=i});
+      tasks.sort((a,b)=>(a.position||0)-(b.position||0));
+    }
+    dragId=null;saveLocal();
+    // Sync positions to Supabase
+    if(sb){try{const rows=tasks.map(t=>({...t,user_id:userId,updated_at:now()}));await sb.from("tasks").upsert(rows,{onConflict:"id"})}catch(e){console.warn(e)}}
+    // Keep isDragging true briefly to block realtime echoes
+    setTimeout(()=>{isDragging=false},1500);
+  });
 
   // Hide loader, show app
   $("#LS").classList.add("h");
