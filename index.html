@@ -443,13 +443,21 @@ async function initSync(){
     const{data,error}=await sb.from("tasks").select("*").eq("user_id",userId);
     if(error){console.warn("Fetch error:",error);throw error}
 
+    // Check if this user has ever synced (prefs row exists = not first time)
+    const{data:prefsCheck}=await sb.from("prefs").select("user_id").eq("user_id",userId);
+    const isFirstEver=!prefsCheck||prefsCheck.length===0;
+
     if(data&&data.length>0){
       // SERVER WINS — replace local entirely
       tasks=data.sort((a,b)=>(a.position||0)-(b.position||0));
       saveLocal();
-    }else if(tasks.length>0){
-      // First sync: push local to server
+    }else if(isFirstEver&&tasks.length>0){
+      // True first sync ever: push local to server
       await pushAll();
+    }else{
+      // Server is empty and user has synced before: clear local too
+      tasks=[];
+      saveLocal();
     }
 
     // Realtime subscription
@@ -468,9 +476,12 @@ async function initSync(){
     if(nd&&nd.length>0){
       notesArr=nd.sort((a,b)=>(b.created_at||0)-(a.created_at||0));
       saveNotes();
-    }else if(notesArr.length>0){
+    }else if(isFirstEver&&notesArr.length>0){
       const rows=notesArr.map(n=>({...n,user_id:userId}));
       await sb.from("notes").upsert(rows,{onConflict:"id"});
+    }else{
+      notesArr=[];
+      saveNotes();
     }
 
     // Notes realtime
