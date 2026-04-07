@@ -47,6 +47,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .tbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border-radius:10px;font-family:var(--fd);font-size:11px;font-weight:700;border:none;background:0;color:var(--text3);cursor:pointer;position:relative;z-index:2;min-height:38px;transition:color .2s;white-space:nowrap}
 .tbtn.on{font-weight:800}
 
+/* Search bar */
+#searchBar{max-width:var(--maxw);margin:0 auto;padding:8px 14px 0}
+#searchInp{width:100%;padding:9px 14px 9px 36px;font-size:14px;font-weight:500;font-family:var(--fb);background:#fff;border:1.5px solid var(--border);border-radius:12px;color:var(--text);outline:0;transition:box-shadow .2s,border-color .2s;min-height:40px;-webkit-appearance:none}
+#searchInp::placeholder{color:#CBD5E1}
+#searchInp:focus{box-shadow:0 0 0 4px rgba(0,82,255,.07);border-color:rgba(0,82,255,.25)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text3);pointer-events:none}
+
 /* Main */
 #mn{max-width:var(--maxw);margin:0 auto;padding:14px 14px calc(80px + env(safe-area-inset-bottom,0px))}
 #frm{margin-bottom:16px;position:relative}
@@ -160,6 +168,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
     <div class="tb" id="tabs"><div class="ti" id="tind"></div></div>
   </div></header>
+  <div id="searchBar"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="searchInp" placeholder="Rechercher…" autocomplete="off"></div></div>
   <main id="mn">
     <form id="frm"><input type="text" id="inp" autocomplete="off" placeholder="Nouvelle tâche…"><button type="submit" id="abtn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></form>
     <div id="tl"></div>
@@ -224,6 +233,7 @@ let justAdded=null;
 let justDone=null;
 let dragId=null;
 let isDragging=false;
+let searchQ="";
 
 // User ID — from URL param, persistent
 const urlUid=new URLSearchParams(location.search).get("uid");
@@ -325,8 +335,11 @@ function updDot(){
 // TASK CRUD
 // ============================================================
 function getList(){
-  if(tab==="trash")return tasks.filter(t=>t.deleted);
-  return tasks.filter(t=>!t.deleted&&t.category===tab);
+  let list;
+  if(tab==="trash")list=tasks.filter(t=>t.deleted);
+  else list=tasks.filter(t=>!t.deleted&&t.category===tab);
+  if(searchQ){const q=searchQ.toLowerCase();list=list.filter(t=>t.text.toLowerCase().includes(q)||(t.notes||"").toLowerCase().includes(q))}
+  return list;
 }
 
 function addTask(txt){
@@ -400,6 +413,8 @@ function render(){
   const frm=$("#frm");
   if(tab==="trash")frm.classList.add("hid");else frm.classList.remove("hid");
   $("#inp").placeholder=`Nouvelle tâche ${cat.label}…`;
+  // Search bar: hide in trash
+  if(tab==="trash")$("#searchBar").style.display="none";else $("#searchBar").style.display="";
 
   const tl=$("#tl"),em=$("#empt");
   if(!fl.length){
@@ -679,6 +694,14 @@ function renderTabs(){
 }
 
 // ============================================================
+// SEARCH
+// ============================================================
+function initSearch(){
+  const inp=$("#searchInp");
+  inp.oninput=()=>{searchQ=inp.value.trim();render()};
+}
+
+// ============================================================
 // INPUT FORM
 // ============================================================
 function initInput(){
@@ -707,6 +730,7 @@ async function init(){
   renderTabs();
   render();
   initInput();
+  initSearch();
   $("#shov").onclick=closeSheet;
 
   window.addEventListener("online",()=>{updDot();if(syncing)pushAll()});
