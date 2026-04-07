@@ -42,9 +42,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .bdg{background:var(--surface);border-radius:12px;padding:2px 10px;font-family:var(--fd);font-size:11px;font-weight:800;color:var(--text2)}
 
 /* Tabs */
-.tb{position:relative;display:flex;gap:3px;padding:3px;background:var(--surface);border-radius:12px}
+.tb{position:relative;display:flex;gap:3px;padding:3px;background:var(--surface);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tb::-webkit-scrollbar{display:none}
 .ti{position:absolute;top:3px;bottom:3px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.07);transition:left .3s cubic-bezier(.22,1,.36,1),width .3s cubic-bezier(.22,1,.36,1);z-index:1}
-.tbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border-radius:10px;font-family:var(--fd);font-size:11px;font-weight:700;border:none;background:0;color:var(--text3);cursor:pointer;position:relative;z-index:2;min-height:38px;transition:color .2s;white-space:nowrap}
+.tbtn{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 10px;border-radius:10px;font-family:var(--fd);font-size:11px;font-weight:700;border:none;background:0;color:var(--text3);cursor:pointer;position:relative;z-index:2;min-height:38px;transition:color .2s;white-space:nowrap}
 .tbtn.on{font-weight:800}
 
 /* Search bar */
@@ -127,6 +128,31 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .cnc{background:var(--surface);color:#475569}
 .cfd{background:var(--danger);color:#fff}
 
+/* Tab add button */
+.tbtn-add{flex-shrink:0;width:34px;min-width:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1.5px dashed var(--border);background:0;color:var(--text3);cursor:pointer;position:relative;z-index:2;min-height:38px;transition:all .15s;font-size:16px}
+.tbtn-add:hover{border-color:var(--text2);color:var(--text2)}
+
+/* Modal */
+.modal-ov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;animation:fadeIn .2s;padding:20px}
+.modal-box{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:400px;max-height:80vh;overflow-y:auto;padding:20px}
+.modal-title{font-family:var(--fd);font-weight:800;font-size:16px;margin-bottom:14px}
+.modal-close{float:right;border:none;background:0;font-size:20px;cursor:pointer;color:var(--text3);padding:4px}
+.cat-form{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.cat-form input[type=text]{font-family:var(--fb);font-size:15px;font-weight:600;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);outline:0}
+.cat-form input[type=text]:focus{border-color:rgba(0,82,255,.25);box-shadow:0 0 0 4px rgba(0,82,255,.07)}
+.cat-emoji-pick{display:flex;flex-wrap:wrap;gap:6px}
+.cat-emoji-btn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cat-emoji-btn.sel{border-color:var(--pro);background:rgba(0,82,255,.06)}
+.cat-color-pick{display:flex;flex-wrap:wrap;gap:6px}
+.cat-color-dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s}
+.cat-color-dot.sel{border-color:var(--text);box-shadow:0 0 0 2px rgba(30,41,59,.2)}
+.cat-color-dot:hover{transform:scale(1.15)}
+.modal-actions{display:flex;gap:8px;margin-top:14px}
+.modal-actions button{flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:13px;border:none;cursor:pointer;min-height:42px;font-family:var(--fb)}
+.btn-primary{background:var(--pro);color:#fff}
+.btn-cancel{background:var(--surface);color:#475569}
+.btn-danger{background:var(--danger);color:#fff}
+
 /* Dark card variants */
 .tc.dark .ttx{color:#fff}
 .tc.dark .tnp{color:rgba(255,255,255,.6)}
@@ -177,6 +203,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 </div>
 <div id="shov" class="sho hid"></div>
 <div id="shee" class="sh hid"><div class="shh"></div><div class="shb" id="shbd"></div></div>
+<div id="modalOv" class="modal-ov hid"></div>
 
 <svg style="display:none">
 <symbol id="i-cc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
@@ -203,14 +230,17 @@ const SB_URL="https://lqcwmnrvusdfutfwqtul.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxY3dtbnJ2dXNkZnV0ZndxdHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMjk4NzQsImV4cCI6MjA5MDcwNTg3NH0.WTtJNtts44g85XQoAM2fczlpYlsKFgPaAKpUOpEXMs0";
 const SK="daily-flow-v2";
 
-const CATS=[
-  {id:"perso",label:"Perso",color:"#FF5A36"},
-  {id:"pro",label:"Pro",color:"#0052FF"},
-  {id:"trash",label:"Corbeille",color:"#64748B"}
+const DEFAULT_CATS=[
+  {id:"perso",label:"Perso",ico:"👤",color:"#FF5A36",fixed:true},
+  {id:"pro",label:"Pro",ico:"💼",color:"#0052FF",fixed:true},
+  {id:"trash",label:"Corbeille",ico:"🗑",color:"#64748B",fixed:true}
 ];
+let CATS=[...DEFAULT_CATS];
 
 const COLORS=["#FFFFFF","#3B82F6","#6366F1","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#0EA5E9","#D946EF","#F43F5E","#84CC16"];
 const isDark=v=>v!=="#FFFFFF"&&v!=="#EAB308"&&v!=="#84CC16";
+const CAT_EMOJIS=["📋","📁","🎯","🏠","📚","💡","🎨","🏃","🎵","🛒","✈️","🔧","📱","🧑‍💻","❤️","⭐"];
+const CAT_COLORS=["#FF5A36","#0052FF","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#D946EF","#84CC16"];
 
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const ic=id=>`<svg><use href="#${id}"/></svg>`;
@@ -250,6 +280,33 @@ let syncing=false;
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK))||[]}catch{return[]}}
 function saveLocal(){localStorage.setItem(SK,JSON.stringify(tasks))}
 
+// Prefs (custom categories) — local cache + Supabase prefs table
+function loadPrefs(){
+  try{const p=JSON.parse(localStorage.getItem(SK+"-prefs")||"{}");
+  if(p.cats&&Array.isArray(p.cats)){
+    const fixedIds=DEFAULT_CATS.map(c=>c.id);
+    CATS=DEFAULT_CATS.map(dc=>{const uc=p.cats.find(c=>c.id===dc.id);return uc?{...dc,...uc,fixed:dc.fixed}:dc});
+    p.cats.filter(c=>!fixedIds.includes(c.id)).forEach(c=>CATS.splice(CATS.length-1,0,{...c,fixed:false}));
+  }}catch(e){}
+}
+function savePrefs(){
+  const p={cats:CATS.filter(c=>c.id!=="trash").map(c=>({id:c.id,label:c.label,ico:c.ico,color:c.color}))};
+  localStorage.setItem(SK+"-prefs",JSON.stringify(p));
+  syncPrefs(p);
+}
+async function syncPrefs(p){
+  if(!sb)return;
+  try{await sb.from("prefs").upsert({user_id:userId,cats:JSON.stringify(p.cats||[]),tags:"[]",updated_at:now()},{onConflict:"user_id"})}catch(e){console.warn("Prefs sync error:",e)}
+}
+async function fetchPrefs(){
+  if(!sb)return;
+  try{const{data}=await sb.from("prefs").select("*").eq("user_id",userId).single();
+  if(data){
+    const cats=JSON.parse(data.cats||"[]");
+    if(cats.length){localStorage.setItem(SK+"-prefs",JSON.stringify({cats}));loadPrefs();renderTabs();render()}
+  }}catch(e){}
+}
+
 // ============================================================
 // SUPABASE SYNC — server is ALWAYS source of truth
 // ============================================================
@@ -274,6 +331,12 @@ async function initSync(){
     sb.channel("tasks-"+userId)
       .on("postgres_changes",{event:"*",schema:"public",table:"tasks",filter:`user_id=eq.${userId}`},handleRemote)
       .subscribe();
+    sb.channel("prefs-"+userId)
+      .on("postgres_changes",{event:"*",schema:"public",table:"prefs",filter:`user_id=eq.${userId}`},()=>fetchPrefs())
+      .subscribe();
+
+    // Fetch prefs (custom categories)
+    await fetchPrefs();
 
     syncing=true;
     updDot();
@@ -674,23 +737,86 @@ function renderSheet(){
 // ============================================================
 function renderTabs(){
   const bar=$("#tabs");
-  bar.querySelectorAll(".tbtn").forEach(b=>b.remove());
-  CATS.forEach(c=>{
-    const b=document.createElement("button");
-    b.className="tbtn"+(tab===c.id?" on":"");
+  bar.querySelectorAll(".tbtn,.tbtn-add").forEach(b=>b.remove());
+  const nonTrash=CATS.filter(c=>c.id!=="trash");
+  const trashCat=CATS.find(c=>c.id==="trash");
+
+  nonTrash.forEach(c=>{
+    const b=document.createElement("button");b.className="tbtn"+(tab===c.id?" on":"");
     b.style.color=tab===c.id?c.color:"";
-    b.textContent=c.label;
+    b.innerHTML=`<span>${c.ico||""}</span><span>${c.label}</span>`;
     b.onclick=()=>{tab=c.id;noteId=null;editId=null;renderTabs();render()};
+    if(!c.fixed){
+      let lp;
+      b.addEventListener("pointerdown",()=>{lp=setTimeout(()=>openCatEditor(c.id),500)});
+      b.addEventListener("pointerup",()=>clearTimeout(lp));
+      b.addEventListener("pointerleave",()=>clearTimeout(lp));
+    }
     bar.appendChild(b);
   });
+
+  if(trashCat){
+    const tb2=document.createElement("button");tb2.className="tbtn"+(tab==="trash"?" on":"");
+    tb2.style.color=tab==="trash"?trashCat.color:"";
+    tb2.innerHTML=`<span>${trashCat.ico}</span><span>${trashCat.label}</span>`;
+    tb2.onclick=()=>{tab="trash";noteId=null;editId=null;renderTabs();render()};
+    bar.appendChild(tb2);
+  }
+
+  const addBtn=document.createElement("button");addBtn.className="tbtn-add";addBtn.textContent="+";
+  addBtn.onclick=()=>openCatEditor(null);
+  bar.appendChild(addBtn);
+
   requestAnimationFrame(()=>{
     const ab=bar.querySelector(".tbtn.on"),ind=$("#tind");
     if(ab&&ind){
       const br=bar.getBoundingClientRect(),er=ab.getBoundingClientRect();
-      ind.style.left=(er.left-br.left)+"px";
+      ind.style.left=(er.left-br.left+bar.scrollLeft)+"px";
       ind.style.width=er.width+"px";
     }
   });
+}
+
+// ============================================================
+// CATEGORY EDITOR
+// ============================================================
+function closeModal(){$("#modalOv").classList.add("hid")}
+
+function openCatEditor(catId){
+  const existing=catId?CATS.find(c=>c.id===catId):null;
+  const ov=$("#modalOv");ov.classList.remove("hid");
+  let selEmoji=existing?existing.ico:"📋";
+  let selColor=existing?existing.color:"#0052FF";
+  let h=`<div class="modal-box"><button class="modal-close" id="ceClose">✕</button><div class="modal-title">${existing?"Modifier la catégorie":"Nouvelle catégorie"}</div><div class="cat-form">`;
+  h+=`<input type="text" id="ceName" placeholder="Nom de la catégorie" value="${existing?esc(existing.label):""}">`;
+  h+=`<div class="clbl" style="margin-top:8px">Icône</div><div class="cat-emoji-pick">`;
+  CAT_EMOJIS.forEach(e=>{h+=`<button class="cat-emoji-btn${e===selEmoji?" sel":""}" data-cem="${e}">${e}</button>`});
+  h+=`</div><div class="clbl" style="margin-top:8px">Couleur</div><div class="cat-color-pick">`;
+  CAT_COLORS.forEach(c=>{h+=`<button class="cat-color-dot${c===selColor?" sel":""}" data-cec="${c}" style="background:${c}"></button>`});
+  h+=`</div></div><div class="modal-actions"><button class="btn-cancel" id="ceCnc">Annuler</button>`;
+  if(existing)h+=`<button class="btn-danger" id="ceDel">Supprimer</button>`;
+  h+=`<button class="btn-primary" id="ceSave">${existing?"Modifier":"Créer"}</button></div></div>`;
+  ov.innerHTML=h;
+
+  ov.querySelector("#ceClose").onclick=closeModal;
+  ov.querySelector("#ceCnc").onclick=closeModal;
+  ov.querySelectorAll("[data-cem]").forEach(b=>{b.onclick=()=>{selEmoji=b.dataset.cem;ov.querySelectorAll(".cat-emoji-btn").forEach(x=>x.classList.toggle("sel",x.dataset.cem===selEmoji))}});
+  ov.querySelectorAll("[data-cec]").forEach(b=>{b.onclick=()=>{selColor=b.dataset.cec;ov.querySelectorAll(".cat-color-dot").forEach(x=>x.classList.toggle("sel",x.dataset.cec===selColor))}});
+
+  if(existing&&ov.querySelector("#ceDel")){
+    ov.querySelector("#ceDel").onclick=()=>{
+      tasks.filter(t=>t.category===catId).forEach(t=>{t.category="perso";t.updated_at=now();syncTask(t)});
+      saveLocal();CATS=CATS.filter(c=>c.id!==catId);savePrefs();
+      tab="perso";closeModal();renderTabs();render();
+    };
+  }
+
+  ov.querySelector("#ceSave").onclick=()=>{
+    const name=ov.querySelector("#ceName").value.trim();if(!name)return;
+    if(existing){existing.label=name;existing.ico=selEmoji;existing.color=selColor}
+    else{const newCat={id:mkId(),label:name,ico:selEmoji,color:selColor,fixed:false};const trashIdx=CATS.findIndex(c=>c.id==="trash");CATS.splice(trashIdx,0,newCat);tab=newCat.id}
+    savePrefs();closeModal();renderTabs();render();
+  };
 }
 
 // ============================================================
@@ -725,6 +851,7 @@ function initInput(){
 async function init(){
   // Load local cache for instant display
   tasks=loadLocal();
+  loadPrefs();
 
   $("#dateD").textContent=dateFR();
   renderTabs();
