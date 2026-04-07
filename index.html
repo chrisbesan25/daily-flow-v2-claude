@@ -195,6 +195,39 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .tc.dark .st-del{color:rgba(255,255,255,.4)}
 .tc.dark .st-input{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
 
+/* Notes page */
+#notesPage{display:none;max-width:var(--maxw);margin:0 auto;padding:14px 14px calc(80px + env(safe-area-inset-bottom,0px))}
+.notes-grid{display:flex;flex-direction:column;gap:10px}
+.note-card{border-radius:16px;padding:14px;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.note-card:active{transform:scale(.98)}
+.note-card .note-title{font-family:var(--fd);font-weight:800;font-size:15px;margin-bottom:4px;line-height:1.3}
+.note-card .note-preview{font-size:13px;font-weight:500;opacity:.7;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note-card .note-date{font-size:10px;font-weight:600;opacity:.5;margin-top:8px}
+.note-fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px;width:56px;height:56px;border-radius:16px;background:#8B5CF6;color:#fff;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(139,92,246,.35);z-index:50;transition:transform .15s}
+.note-fab:active{transform:scale(.92)}
+
+/* Note editor */
+.note-editor{display:none;max-width:var(--maxw);margin:0 auto;padding:14px}
+.note-editor-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ne-back{border:none;background:0;font-size:14px;font-weight:700;color:var(--pro);cursor:pointer;display:flex;align-items:center;gap:4px}
+.ne-back svg{width:16px;height:16px}
+.ne-actions{display:flex;gap:8px}
+.ne-del{border:none;background:rgba(239,68,68,.1);color:var(--danger);padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
+.ne-save{border:none;background:#8B5CF6;color:#fff;padding:6px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
+.ne-title{width:100%;font-family:var(--fd);font-weight:800;font-size:20px;border:none;background:0;color:var(--text);outline:0;padding:8px 0;margin-bottom:4px}
+.ne-title::placeholder{color:#CBD5E1}
+.ne-colors{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.ne-cdot{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s}
+.ne-cdot.sel{border-color:var(--text);box-shadow:0 0 0 2px rgba(30,41,59,.2)}
+.ne-cdot:hover{transform:scale(1.15)}
+.ne-toolbar{display:flex;gap:4px;margin-bottom:8px;padding:6px;background:var(--surface);border-radius:10px;flex-wrap:wrap}
+.ne-toolbar button{border:none;background:0;padding:6px 10px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;color:var(--text2)}
+.ne-toolbar button:hover{background:rgba(0,0,0,.06)}
+.ne-toolbar select{border:1px solid var(--border);background:#fff;border-radius:6px;padding:4px 6px;font-family:var(--fb);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;outline:0}
+.ne-body{min-height:300px;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:#fff;font-size:17px;font-family:var(--fb);font-weight:500;line-height:1.6;color:var(--text);outline:0}
+.ne-body b,.ne-body strong{font-weight:900}
+.ne-body ul,.ne-body ol{padding-left:24px}
+
 /* Dark card variants */
 .tc.dark .ttx{color:#fff}
 .tc.dark .tnp{color:rgba(255,255,255,.6)}
@@ -243,6 +276,24 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div id="tl"></div>
     <div id="empt" class="es hid"></div>
   </main>
+  <div id="notesPage"></div>
+  <div class="note-editor" id="noteEditor">
+    <div class="note-editor-bar">
+      <button class="ne-back" id="neBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Retour</button>
+      <div class="ne-actions"><button class="ne-del hid" id="neDel">Supprimer</button><button class="ne-save" id="neSave">Enregistrer</button></div>
+    </div>
+    <input class="ne-title" id="neTitle" placeholder="Titre de la note…">
+    <div class="ne-colors" id="neColors"></div>
+    <div class="ne-toolbar" id="neToolbar">
+      <button data-cmd="bold"><b>G</b></button>
+      <button data-cmd="italic"><i>I</i></button>
+      <select id="neFontSize"><option value="">Taille</option><option value="1">10px</option><option value="2">13px</option><option value="3">16px</option><option value="4">18px</option><option value="5">24px</option><option value="6">32px</option><option value="7">48px</option></select>
+      <button data-cmd="insertUnorderedList">• Liste</button>
+      <button data-cmd="indent">→</button>
+      <button data-cmd="outdent">←</button>
+    </div>
+    <div class="ne-body" id="neBody" contenteditable="true"></div>
+  </div>
 </div>
 <div id="shov" class="sho hid"></div>
 <div id="shee" class="sh hid"><div class="shh"></div><div class="shb" id="shbd"></div></div>
@@ -326,6 +377,8 @@ let justDone=null;
 let dragId=null;
 let isDragging=false;
 let searchQ="";
+let currentPage="tasks"; // tasks | notes | noteEdit
+let notesArr=[];
 
 // User ID — from URL param, persistent
 const urlUid=new URLSearchParams(location.search).get("uid");
@@ -373,6 +426,12 @@ async function fetchPrefs(){
   }}catch(e){}
 }
 
+// Notes local storage
+function loadNotes(){try{return JSON.parse(localStorage.getItem(SK+"-notes"))||[]}catch{return[]}}
+function saveNotes(){localStorage.setItem(SK+"-notes",JSON.stringify(notesArr))}
+async function syncNote(n){if(!sb)return;try{await sb.from("notes").upsert({...n,user_id:userId},{onConflict:"id"})}catch(e){console.warn(e)}}
+async function hardDeleteNote(id){if(!sb)return;try{await sb.from("notes").delete().eq("id",id).eq("user_id",userId)}catch(e){console.warn(e)}}
+
 // ============================================================
 // SUPABASE SYNC — server is ALWAYS source of truth
 // ============================================================
@@ -403,6 +462,21 @@ async function initSync(){
 
     // Fetch prefs (custom categories)
     await fetchPrefs();
+
+    // Notes — server wins
+    const{data:nd}=await sb.from("notes").select("*").eq("user_id",userId);
+    if(nd&&nd.length>0){
+      notesArr=nd.sort((a,b)=>(b.created_at||0)-(a.created_at||0));
+      saveNotes();
+    }else if(notesArr.length>0){
+      const rows=notesArr.map(n=>({...n,user_id:userId}));
+      await sb.from("notes").upsert(rows,{onConflict:"id"});
+    }
+
+    // Notes realtime
+    sb.channel("notes-"+userId)
+      .on("postgres_changes",{event:"*",schema:"public",table:"notes",filter:`user_id=eq.${userId}`},handleRemoteNote)
+      .subscribe();
 
     syncing=true;
     updDot();
@@ -451,6 +525,14 @@ async function hardDelete(id){
   if(!sb)return;
   const{error}=await sb.from("tasks").delete().eq("id",id).eq("user_id",userId);
   if(error)console.warn("Delete error:",error);
+}
+
+function handleRemoteNote(payload){
+  if(payload.eventType==="DELETE"){notesArr=notesArr.filter(n=>n.id!==payload.old.id)}
+  else{const r=payload.new;const i=notesArr.findIndex(n=>n.id===r.id);if(i>=0)notesArr[i]=r;else notesArr.push(r)}
+  notesArr.sort((a,b)=>(b.created_at||0)-(a.created_at||0));
+  saveNotes();
+  if(currentPage==="notes")renderNotesPage();
 }
 
 function updDot(){
@@ -915,7 +997,7 @@ function renderTabs(){
     const b=document.createElement("button");b.className="tbtn"+(tab===c.id?" on":"");
     b.style.color=tab===c.id?c.color:"";
     b.innerHTML=`<span>${c.ico||""}</span><span>${c.label}</span>`;
-    b.onclick=()=>{tab=c.id;noteId=null;editId=null;renderTabs();render()};
+    b.onclick=()=>{currentPage="tasks";tab=c.id;noteId=null;editId=null;showTasksPage();renderTabs();render()};
     if(!c.fixed){
       let lp;
       b.addEventListener("pointerdown",()=>{lp=setTimeout(()=>openCatEditor(c.id),500)});
@@ -929,9 +1011,16 @@ function renderTabs(){
     const tb2=document.createElement("button");tb2.className="tbtn"+(tab==="trash"?" on":"");
     tb2.style.color=tab==="trash"?trashCat.color:"";
     tb2.innerHTML=`<span>${trashCat.ico}</span><span>${trashCat.label}</span>`;
-    tb2.onclick=()=>{tab="trash";noteId=null;editId=null;renderTabs();render()};
+    tb2.onclick=()=>{currentPage="tasks";tab="trash";noteId=null;editId=null;showTasksPage();renderTabs();render()};
     bar.appendChild(tb2);
   }
+
+  // Notes tab
+  const ntb=document.createElement("button");ntb.className="tbtn"+(currentPage==="notes"||currentPage==="noteEdit"?" on":"");
+  ntb.style.color=(currentPage==="notes"||currentPage==="noteEdit")?"#8B5CF6":"";
+  ntb.innerHTML=`<span>📝</span><span>Notes</span>`;
+  ntb.onclick=()=>{currentPage="notes";tab="__notes__";showNotesPage();renderTabs()};
+  bar.appendChild(ntb);
 
   const addBtn=document.createElement("button");addBtn.className="tbtn-add";addBtn.textContent="+";
   addBtn.onclick=()=>openCatEditor(null);
@@ -945,6 +1034,103 @@ function renderTabs(){
       ind.style.width=er.width+"px";
     }
   });
+}
+
+// ============================================================
+// PAGE SWITCHING
+// ============================================================
+function showTasksPage(){
+  $("#mn").style.display="";
+  $("#notesPage").style.display="none";
+  $("#noteEditor").style.display="none";
+  if(tab!=="trash"&&tab!=="__notes__")$("#searchBar").style.display="";else $("#searchBar").style.display="none";
+}
+function showNotesPage(){
+  $("#mn").style.display="none";
+  $("#noteEditor").style.display="none";
+  $("#notesPage").style.display="block";
+  $("#searchBar").style.display="none";
+  renderNotesPage();
+}
+
+// ============================================================
+// NOTES PAGE
+// ============================================================
+function renderNotesPage(){
+  const pg=$("#notesPage");
+  let filtered=notesArr.filter(n=>!n.deleted);
+  if(searchQ){const q=searchQ.toLowerCase();filtered=filtered.filter(n=>(n.title||"").toLowerCase().includes(q)||(n.content||"").toLowerCase().includes(q))}
+  let h=`<div class="notes-grid">`;
+  if(!filtered.length)h+=`<div class="es" style="opacity:.2"><p>Aucune note</p></div>`;
+  filtered.forEach(n=>{
+    const bg=n.color&&n.color!=="#FFFFFF"?n.color:"#fff";
+    const dark2=isDark(n.color||"#FFFFFF")&&(n.color||"#FFFFFF")!=="#FFFFFF";
+    const tc=dark2?"#fff":"#1E293B";
+    const preview=(n.content||"").replace(/<[^>]+>/g,"").slice(0,120);
+    const date=n.created_at?new Date(n.created_at).toLocaleDateString("fr-FR"):"";
+    h+=`<div class="note-card" data-nid="${n.id}" style="background:${bg};color:${tc}"><div class="note-title">${esc(n.title||"Sans titre")}</div><div class="note-preview">${esc(preview)}</div><div class="note-date">${date}</div></div>`;
+  });
+  h+=`</div><button class="note-fab" id="noteFab">+</button>`;
+  pg.innerHTML=h;
+  pg.querySelectorAll("[data-nid]").forEach(c=>{c.onclick=()=>openNoteEditor(c.dataset.nid)});
+  const fab=pg.querySelector("#noteFab");if(fab)fab.onclick=()=>openNoteEditor(null);
+}
+
+function openNoteEditor(id){
+  currentPage="noteEdit";
+  $("#mn").style.display="none";
+  $("#notesPage").style.display="none";
+  $("#noteEditor").style.display="block";
+  $("#searchBar").style.display="none";
+
+  const note=id?notesArr.find(n=>n.id===id):null;
+  $("#neTitle").value=note?note.title||"":"";
+  $("#neBody").innerHTML=note?note.content||"":"";
+  if(id)$("#neDel").classList.remove("hid");else $("#neDel").classList.add("hid");
+
+  let selColor=note?note.color||"#FFFFFF":"#FFFFFF";
+  const colDiv=$("#neColors");
+  colDiv.innerHTML=COLORS.map(c=>`<button class="ne-cdot${c===selColor?" sel":""}" data-nec="${c}" style="background:${c==="#FFFFFF"?"#f0f0f0":c}"></button>`).join("");
+  colDiv.querySelectorAll("[data-nec]").forEach(b=>{b.onclick=()=>{
+    selColor=b.dataset.nec;
+    colDiv.querySelectorAll(".ne-cdot").forEach(d=>d.classList.toggle("sel",d.dataset.nec===selColor));
+  }});
+
+  // Toolbar commands
+  $$("#neToolbar button[data-cmd]").forEach(b=>{b.onclick=()=>{document.execCommand(b.dataset.cmd,false,null);$("#neBody").focus()}});
+
+  // Font size with selection preservation
+  let savedRange=null;
+  $("#neBody").addEventListener("blur",()=>{const sel=window.getSelection();if(sel.rangeCount>0)savedRange=sel.getRangeAt(0)},{capture:false});
+  const fsSel=$("#neFontSize");fsSel.value="";
+  fsSel.onchange=()=>{
+    if(fsSel.value){
+      if(savedRange){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange)}
+      document.execCommand("fontSize",false,fsSel.value);
+      $("#neBody").focus();fsSel.value="";
+    }
+  };
+
+  // Save
+  $("#neSave").onclick=()=>{
+    const title=$("#neTitle").value.trim()||"Sans titre";
+    const content=$("#neBody").innerHTML;
+    if(id){
+      const n=notesArr.find(n=>n.id===id);
+      if(n){Object.assign(n,{title,content,color:selColor,updated_at:now()});saveNotes();syncNote(n)}
+    }else{
+      const n={id:mkId(),title,content,color:selColor,deleted:false,created_at:now(),updated_at:now()};
+      notesArr.unshift(n);saveNotes();syncNote(n);
+    }
+    currentPage="notes";tab="__notes__";showNotesPage();renderTabs();
+  };
+  // Delete
+  $("#neDel").onclick=()=>{
+    if(id){notesArr=notesArr.filter(n=>n.id!==id);saveNotes();hardDeleteNote(id)}
+    currentPage="notes";tab="__notes__";showNotesPage();renderTabs();
+  };
+  // Back
+  $("#neBack").onclick=()=>{currentPage="notes";tab="__notes__";showNotesPage();renderTabs()};
 }
 
 // ============================================================
@@ -1058,6 +1244,7 @@ async function init(){
   // Load local cache for instant display
   tasks=loadLocal();
   loadPrefs();
+  notesArr=loadNotes();
 
   $("#dateD").textContent=dateFR();
   renderTabs();
