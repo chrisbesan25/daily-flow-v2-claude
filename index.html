@@ -153,6 +153,24 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .btn-cancel{background:var(--surface);color:#475569}
 .btn-danger{background:var(--danger);color:#fff}
 
+/* Tag badges on cards */
+.card-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;position:relative;z-index:10}
+.badge-tag{font-family:var(--fd);font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;color:#fff}
+
+/* Tag toggles in expanded area */
+.tags-section{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.tag-toggle{font-family:var(--fd);font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;color:#fff}
+
+/* Tag manager modal items */
+.tag-mgr-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--surface)}
+.tag-mgr-color{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:transform .15s}
+.tag-mgr-color:hover{transform:scale(1.15)}
+.tag-mgr-name{flex:1;font-size:14px;font-weight:600;min-width:0}
+.tag-mgr-name input{font-family:var(--fb);font-size:14px;font-weight:600;border:none;border-bottom:1.5px solid var(--pro);background:0;outline:0;width:100%;padding:2px 0}
+.tag-mgr-del{border:none;background:0;color:var(--text3);cursor:pointer;font-size:16px;padding:4px}
+.tag-mgr-del:hover{color:var(--danger)}
+.tag-mgr-add{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;color:var(--pro);font-weight:600;font-size:13px;border:none;background:0;width:100%}
+
 /* Dark card variants */
 .tc.dark .ttx{color:#fff}
 .tc.dark .tnp{color:rgba(255,255,255,.6)}
@@ -189,6 +207,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <div class="hdr-right">
         <span class="dt" id="dateD"></span>
         <div class="syncd" id="syncd" title="Sync"></div>
+        <button class="hdr-btn" id="tagMgrBtn" title="Gérer les tags"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
         <span class="bdg" id="cnt">0</span>
       </div>
     </div>
@@ -237,8 +256,21 @@ const DEFAULT_CATS=[
 ];
 let CATS=[...DEFAULT_CATS];
 
+const DEFAULT_TAGS=[
+  {id:"urgent",label:"Urgent",color:"#EF4444"},
+  {id:"waiting",label:"En attente",color:"#EAB308"},
+  {id:"idea",label:"Idée",color:"#8B5CF6"},
+  {id:"important",label:"Important",color:"#3B82F6"}
+];
+let TAGS=[...DEFAULT_TAGS];
+
 const COLORS=["#FFFFFF","#3B82F6","#6366F1","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#0EA5E9","#D946EF","#F43F5E","#84CC16"];
 const isDark=v=>v!=="#FFFFFF"&&v!=="#EAB308"&&v!=="#84CC16";
+function parseTags(t){try{return Array.isArray(t)?t:JSON.parse(t||"[]")}catch{return[]}}
+function tagBadges(taskTags){
+  const tags=parseTags(taskTags);if(!tags.length)return"";
+  return tags.map(tid=>{const tg=TAGS.find(t=>t.id===tid);if(!tg)return"";return`<span class="badge-tag" style="background:${tg.color}">${esc(tg.label)}</span>`}).join("");
+}
 const CAT_EMOJIS=["📋","📁","🎯","🏠","📚","💡","🎨","🏃","🎵","🛒","✈️","🔧","📱","🧑‍💻","❤️","⭐"];
 const CAT_COLORS=["#FF5A36","#0052FF","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#D946EF","#84CC16"];
 
@@ -287,23 +319,27 @@ function loadPrefs(){
     const fixedIds=DEFAULT_CATS.map(c=>c.id);
     CATS=DEFAULT_CATS.map(dc=>{const uc=p.cats.find(c=>c.id===dc.id);return uc?{...dc,...uc,fixed:dc.fixed}:dc});
     p.cats.filter(c=>!fixedIds.includes(c.id)).forEach(c=>CATS.splice(CATS.length-1,0,{...c,fixed:false}));
-  }}catch(e){}
+  }
+  if(p.tags&&Array.isArray(p.tags))TAGS=p.tags;
+  }catch(e){}
 }
 function savePrefs(){
-  const p={cats:CATS.filter(c=>c.id!=="trash").map(c=>({id:c.id,label:c.label,ico:c.ico,color:c.color}))};
+  const p={cats:CATS.filter(c=>c.id!=="trash").map(c=>({id:c.id,label:c.label,ico:c.ico,color:c.color})),tags:TAGS};
   localStorage.setItem(SK+"-prefs",JSON.stringify(p));
   syncPrefs(p);
 }
 async function syncPrefs(p){
   if(!sb)return;
-  try{await sb.from("prefs").upsert({user_id:userId,cats:JSON.stringify(p.cats||[]),tags:"[]",updated_at:now()},{onConflict:"user_id"})}catch(e){console.warn("Prefs sync error:",e)}
+  try{await sb.from("prefs").upsert({user_id:userId,cats:JSON.stringify(p.cats||[]),tags:JSON.stringify(p.tags||[]),updated_at:now()},{onConflict:"user_id"})}catch(e){console.warn("Prefs sync error:",e)}
 }
 async function fetchPrefs(){
   if(!sb)return;
   try{const{data}=await sb.from("prefs").select("*").eq("user_id",userId).single();
   if(data){
     const cats=JSON.parse(data.cats||"[]");
-    if(cats.length){localStorage.setItem(SK+"-prefs",JSON.stringify({cats}));loadPrefs();renderTabs();render()}
+    const tags=JSON.parse(data.tags||"[]");
+    const p={};if(cats.length)p.cats=cats;if(tags.length)p.tags=tags;
+    if(Object.keys(p).length){localStorage.setItem(SK+"-prefs",JSON.stringify(p));loadPrefs();renderTabs();render()}
   }}catch(e){}
 }
 
@@ -523,12 +559,24 @@ function render(){
     const nb=tab!=="trash"?`<button class="ab" style="background:${nbg};color:${ncol}" data-nt="${t.id}">${ic("i-ft")}</button>`:"";
     const mb=`<button class="mb" data-sh="${t.id}">${ic("i-dot")}</button>`;
 
+    // Tag badges on card
+    const tb=tagBadges(t.tags);
+    const badges=tb?`<div class="card-badges">${tb}</div>`:"";
+
     let noteArea="";
     if(noteId===t.id&&tab!=="trash"){
-      noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea></div>`;
+      // Tags toggle section
+      const taskTags=parseTags(t.tags);
+      let tagHtml=`<div class="tags-section">`;
+      TAGS.forEach(tg=>{
+        const active=taskTags.includes(tg.id);
+        tagHtml+=`<button class="tag-toggle" data-tagtog="${t.id}" data-tagid="${tg.id}" style="background:${active?tg.color:tg.color+"4D"};opacity:${active?1:.7}">${esc(tg.label)}</button>`;
+      });
+      tagHtml+=`</div>`;
+      noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea>${tagHtml}</div>`;
     }
 
-    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}"><div class="swipe-bg left">🗑</div><div class="swipe-bg right">✓</div><div class="swipe-content">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${noteArea}</div></div>`;
+    return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}"><div class="swipe-bg left">🗑</div><div class="swipe-bg right">✓</div><div class="swipe-content">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${badges}${noteArea}</div></div>`;
   };
 
   active.forEach(t=>{html+=card(t,false)});
@@ -577,6 +625,14 @@ function bindCards(){
 
   // Bottom sheet
   $$("[data-sh]").forEach(b=>{b.onclick=e=>{e.stopPropagation();openSheet(b.dataset.sh)}});
+
+  // Tag toggles
+  $$("[data-tagtog]").forEach(b=>{b.onclick=()=>{
+    const t=tasks.find(t=>t.id===b.dataset.tagtog);if(!t)return;
+    let tags=parseTags(t.tags);const tid=b.dataset.tagid;
+    if(tags.includes(tid))tags=tags.filter(x=>x!==tid);else tags.push(tid);
+    updTask(b.dataset.tagtog,{tags:JSON.stringify(tags)});
+  }});
 
   // Drag handles
   $$("[data-dg]").forEach(h=>{h.onpointerdown=e=>{
@@ -778,6 +834,42 @@ function renderTabs(){
 }
 
 // ============================================================
+// TAG MANAGER
+// ============================================================
+function openTagManager(){
+  const ov=$("#modalOv");ov.classList.remove("hid");
+  renderTagManager();
+}
+function renderTagManager(){
+  const ov=$("#modalOv");
+  let h=`<div class="modal-box"><button class="modal-close" id="tmClose">✕</button><div class="modal-title">Gérer les tags</div>`;
+  TAGS.forEach((tg,i)=>{
+    h+=`<div class="tag-mgr-item"><button class="tag-mgr-color" data-tmc="${i}" style="background:${tg.color}"></button><div class="tag-mgr-name"><input data-tmn="${i}" value="${esc(tg.label)}"></div><button class="tag-mgr-del" data-tmd="${i}">✕</button></div>`;
+  });
+  h+=`<button class="tag-mgr-add" id="tmAdd">+ Ajouter un tag</button></div>`;
+  ov.innerHTML=h;
+  ov.querySelector("#tmClose").onclick=closeModal;
+  ov.querySelectorAll("[data-tmc]").forEach(b=>{b.onclick=()=>{
+    const i=parseInt(b.dataset.tmc);const ci=CAT_COLORS.indexOf(TAGS[i].color);
+    TAGS[i].color=CAT_COLORS[(ci+1)%CAT_COLORS.length];
+    savePrefs();renderTagManager();render();
+  }});
+  ov.querySelectorAll("[data-tmn]").forEach(inp=>{
+    inp.onblur=()=>{const i=parseInt(inp.dataset.tmn);if(inp.value.trim())TAGS[i].label=inp.value.trim();savePrefs();render()};
+    inp.onkeydown=e=>{if(e.key==="Enter")inp.blur()};
+  });
+  ov.querySelectorAll("[data-tmd]").forEach(b=>{b.onclick=()=>{
+    const i=parseInt(b.dataset.tmd);const tid=TAGS[i].id;
+    tasks.forEach(t=>{let tags=parseTags(t.tags);if(tags.includes(tid)){tags=tags.filter(x=>x!==tid);t.tags=JSON.stringify(tags);t.updated_at=now();saveLocal();syncTask(t)}});
+    TAGS.splice(i,1);savePrefs();renderTagManager();render();
+  }});
+  ov.querySelector("#tmAdd").onclick=()=>{
+    TAGS.push({id:mkId(),label:"Nouveau",color:CAT_COLORS[TAGS.length%CAT_COLORS.length]});
+    savePrefs();renderTagManager();
+  };
+}
+
+// ============================================================
 // CATEGORY EDITOR
 // ============================================================
 function closeModal(){$("#modalOv").classList.add("hid")}
@@ -859,6 +951,7 @@ async function init(){
   initInput();
   initSearch();
   $("#shov").onclick=closeSheet;
+  $("#tagMgrBtn").onclick=openTagManager;
 
   window.addEventListener("online",()=>{updDot();if(syncing)pushAll()});
   window.addEventListener("offline",updDot);
