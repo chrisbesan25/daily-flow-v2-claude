@@ -265,6 +265,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <span class="dt" id="dateD"></span>
         <div class="syncd" id="syncd" title="Sync"></div>
         <button class="hdr-btn" id="tagMgrBtn" title="Gérer les tags"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
+        <button class="hdr-btn" id="menuBtn" title="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
         <span class="bdg" id="cnt">0</span>
       </div>
     </div>
@@ -298,6 +299,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <div id="shov" class="sho hid"></div>
 <div id="shee" class="sh hid"><div class="shh"></div><div class="shb" id="shbd"></div></div>
 <div id="modalOv" class="modal-ov hid"></div>
+<input type="file" id="importFile" accept="application/json" style="display:none">
 
 <svg style="display:none">
 <symbol id="i-cc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
@@ -1249,6 +1251,55 @@ function initInput(){
 }
 
 // ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportData(){
+  const data={tasks,notes:notesArr,prefs:{cats:CATS.filter(c=>c.id!=="trash").map(c=>({id:c.id,label:c.label,ico:c.ico,color:c.color})),tags:TAGS}};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="daily-flow-backup.json";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data.tasks||!Array.isArray(data.tasks)){alert("Fichier non reconnu.");return}
+      // Replace local
+      tasks=data.tasks;saveLocal();
+      if(data.notes&&Array.isArray(data.notes)){notesArr=data.notes;saveNotes()}
+      if(data.prefs){
+        localStorage.setItem(SK+"-prefs",JSON.stringify(data.prefs));
+        loadPrefs();
+      }
+      // Push to server
+      if(sb){
+        await sb.from("tasks").upsert(tasks.map(t=>({...t,user_id:userId})),{onConflict:"id"});
+        if(notesArr.length)await sb.from("notes").upsert(notesArr.map(n=>({...n,user_id:userId})),{onConflict:"id"});
+        savePrefs();
+      }
+      renderTabs();render();
+      alert("Import réussi !");
+    }catch(e){alert("Erreur d'import : "+e.message)}
+  };
+  reader.readAsText(file);
+}
+
+function openMenu(){
+  const ov=$("#modalOv");ov.classList.remove("hid");
+  let h=`<div class="modal-box"><button class="modal-close" id="menuClose">✕</button><div class="modal-title">Menu</div>`;
+  h+=`<button class="sbtn sba" id="menuExport" style="margin-bottom:8px">📥 Exporter les données (JSON)</button>`;
+  h+=`<button class="sbtn sba" id="menuImport">📤 Importer des données</button>`;
+  h+=`</div>`;
+  ov.innerHTML=h;
+  ov.querySelector("#menuClose").onclick=closeModal;
+  ov.querySelector("#menuExport").onclick=()=>{exportData();closeModal()};
+  ov.querySelector("#menuImport").onclick=()=>{closeModal();$("#importFile").click()};
+}
+
+// ============================================================
 // INIT
 // ============================================================
 async function init(){
@@ -1264,6 +1315,8 @@ async function init(){
   initSearch();
   $("#shov").onclick=closeSheet;
   $("#tagMgrBtn").onclick=openTagManager;
+  $("#menuBtn").onclick=openMenu;
+  $("#importFile").onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value=""};
 
   window.addEventListener("online",()=>{updDot();if(syncing)pushAll()});
   window.addEventListener("offline",updDot);
