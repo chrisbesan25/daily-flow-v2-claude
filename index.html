@@ -174,6 +174,27 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .tag-mgr-del:hover{color:var(--danger)}
 .tag-mgr-add{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;color:var(--pro);font-weight:600;font-size:13px;border:none;background:0;width:100%}
 
+/* Subtask badge on card */
+.badge-sub{font-family:var(--fd);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(0,0,0,.06);color:var(--text2);display:inline-flex;align-items:center;gap:3px}
+.tc.dark .badge-sub{background:rgba(255,255,255,.2);color:#fff}
+
+/* Subtasks in expanded area */
+.st-section{margin-top:10px}
+.st-item{display:flex;align-items:center;gap:6px;padding:4px 0}
+.st-item input[type=checkbox]{accent-color:var(--pro);width:16px;height:16px;cursor:pointer;flex-shrink:0}
+.st-grip{padding:2px;color:var(--text3);cursor:grab;touch-action:none;display:flex;flex-shrink:0;border:none;background:0;font-size:11px;opacity:.5}
+.st-grip:active{cursor:grabbing;opacity:1}
+.st-text{font-size:13px;font-weight:500;flex:1;min-width:0;cursor:text;word-break:break-word}
+.st-text.done{text-decoration:line-through;opacity:.5}
+.st-del{width:22px;height:22px;border:none;background:0;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;border-radius:6px;flex-shrink:0}
+.st-del:hover{background:rgba(239,68,68,.1);color:var(--danger)}
+.st-input{font-family:var(--fb);font-size:13px;border:none;border-bottom:1.5px solid var(--pro);background:0;padding:4px 0;outline:0;width:100%;color:var(--text)}
+.st-item.st-dragging{opacity:.5;background:rgba(0,0,0,.05);border-radius:6px}
+.tc.dark .st-text{color:#fff}
+.tc.dark .st-grip{color:rgba(255,255,255,.3)}
+.tc.dark .st-del{color:rgba(255,255,255,.4)}
+.tc.dark .st-input{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+
 /* Dark card variants */
 .tc.dark .ttx{color:#fff}
 .tc.dark .tnp{color:rgba(255,255,255,.6)}
@@ -273,6 +294,12 @@ function parseTags(t){try{return Array.isArray(t)?t:JSON.parse(t||"[]")}catch{re
 function tagBadges(taskTags){
   const tags=parseTags(taskTags);if(!tags.length)return"";
   return tags.map(tid=>{const tg=TAGS.find(t=>t.id===tid);if(!tg)return"";return`<span class="badge-tag" style="background:${tg.color}">${esc(tg.label)}</span>`}).join("");
+}
+function parseSubs(s){try{return Array.isArray(s)?s:JSON.parse(s||"[]")}catch{return[]}}
+function subBadge(subtasks){
+  const subs=parseSubs(subtasks);if(!subs.length)return"";
+  const done=subs.filter(s=>s.done).length;
+  return`<span class="badge-sub">☑ ${done}/${subs.length}</span>`;
 }
 const CAT_EMOJIS=["📋","📁","🎯","🏠","📚","💡","🎨","🏃","🎵","🛒","✈️","🔧","📱","🧑‍💻","❤️","⭐"];
 const CAT_COLORS=["#FF5A36","#0052FF","#8B5CF6","#EC4899","#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#06B6D4","#D946EF","#84CC16"];
@@ -564,7 +591,8 @@ function render(){
 
     // Tag badges on card
     const tb=tagBadges(t.tags);
-    const badges=tb?`<div class="card-badges">${tb}</div>`:"";
+    const sb2=subBadge(t.subtasks);
+    const badges=(tb||sb2)?`<div class="card-badges">${sb2}${tb}</div>`:"";
 
     let noteArea="";
     if(noteId===t.id&&tab!=="trash"){
@@ -576,7 +604,16 @@ function render(){
         tagHtml+=`<button class="tag-toggle" data-tagtog="${t.id}" data-tagid="${tg.id}" style="background:${active?tg.color:tg.color+"4D"};opacity:${active?1:.7}">${esc(tg.label)}</button>`;
       });
       tagHtml+=`</div>`;
-      noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea>${tagHtml}</div>`;
+
+      // Subtasks section
+      const subs=parseSubs(t.subtasks);
+      let stHtml=`<div class="st-section"><div style="font-size:11px;font-weight:700;margin-bottom:4px;color:${dark?"rgba(255,255,255,.6)":"var(--text3)"}">Sous-tâches</div><div class="st-list" data-stlist="${t.id}">`;
+      subs.forEach((s,i)=>{
+        stHtml+=`<div class="st-item" data-stpos="${i}"><span class="st-grip" data-stgrip="${t.id}">⠿</span><input type="checkbox" data-sti="${t.id}" data-stidx="${i}" ${s.done?"checked":""}><span class="st-text${s.done?" done":""}" data-strenam="${t.id}" data-stridx="${i}" style="color:${dark?"#fff":"var(--text)"}">${esc(s.text)}</span><button class="st-del" data-stdel="${t.id}" data-stdelidx="${i}">×</button></div>`;
+      });
+      stHtml+=`</div><div class="st-item" style="margin-top:4px"><input class="st-input" data-stadd="${t.id}" placeholder="+ Sous-tâche" style="color:${dark?"#fff":"var(--text)"}"></div></div>`;
+
+      noteArea=`<div class="na"><textarea class="nta" data-ni="${t.id}" placeholder="Notes…">${esc(t.notes||"")}</textarea>${stHtml}${tagHtml}</div>`;
     }
 
     return`<div class="${cls}" data-tid="${t.id}" style="background:${bgColor==="#FFFFFF"?"#fff":bgColor};opacity:${faded?.5:1}"><div class="swipe-bg left">🗑</div><div class="swipe-bg right">✓</div><div class="swipe-content">${tbar}<div class="trow">${dh}${ck}${txt}<div class="tact">${nb}${mb}</div></div>${badges}${noteArea}</div></div>`;
@@ -636,6 +673,80 @@ function bindCards(){
     if(tags.includes(tid))tags=tags.filter(x=>x!==tid);else tags.push(tid);
     updTask(b.dataset.tagtog,{tags:JSON.stringify(tags)});
   }});
+
+  // Subtask checkbox
+  $$("[data-sti]").forEach(cb=>{cb.onchange=()=>{
+    const t=tasks.find(t=>t.id===cb.dataset.sti);if(!t)return;
+    const subs=[...parseSubs(t.subtasks)];const idx=parseInt(cb.dataset.stidx);
+    if(subs[idx])subs[idx]={...subs[idx],done:cb.checked};
+    updSilent(cb.dataset.sti,{subtasks:JSON.stringify(subs)});render();
+  }});
+
+  // Subtask add
+  let stAddLock=false;
+  $$("[data-stadd]").forEach(inp=>{
+    const commit=()=>{if(stAddLock)return;const v=inp.value.trim();if(!v)return;stAddLock=true;
+      const t=tasks.find(t=>t.id===inp.dataset.stadd);if(!t){stAddLock=false;return}
+      const subs=[...parseSubs(t.subtasks),{text:v,done:false}];
+      updTask(inp.dataset.stadd,{subtasks:JSON.stringify(subs)});
+      setTimeout(()=>{stAddLock=false},100);
+    };
+    inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();commit()}};
+    inp.onblur=()=>commit();
+  });
+
+  // Subtask delete
+  $$("[data-stdel]").forEach(b=>{b.onclick=()=>{
+    const t=tasks.find(t=>t.id===b.dataset.stdel);if(!t)return;
+    const subs=[...parseSubs(t.subtasks)];subs.splice(parseInt(b.dataset.stdelidx),1);
+    updTask(b.dataset.stdel,{subtasks:JSON.stringify(subs)});
+  }});
+
+  // Subtask rename
+  $$("[data-strenam]").forEach(span=>{span.onclick=()=>{
+    const tid=span.dataset.strenam,idx=parseInt(span.dataset.stridx);
+    const t=tasks.find(t=>t.id===tid);if(!t)return;
+    const subs=parseSubs(t.subtasks);const old=subs[idx];if(!old)return;
+    const inp=document.createElement("input");inp.className="st-input";inp.value=old.text;
+    span.replaceWith(inp);inp.focus();
+    let done=false;
+    const finish=()=>{if(done)return;done=true;const v=inp.value.trim();
+      if(v&&v!==old.text){const s=[...parseSubs(t.subtasks)];s[idx]={...s[idx],text:v};updTask(tid,{subtasks:JSON.stringify(s)})}else render()};
+    inp.onblur=finish;inp.onkeydown=e=>{if(e.key==="Enter")inp.blur()};
+  }});
+
+  // Subtask drag & drop
+  $$("[data-stgrip]").forEach(grip=>{
+    grip.onpointerdown=e=>{
+      e.preventDefault();e.stopPropagation();
+      const item=grip.closest(".st-item");const list=grip.closest(".st-list");
+      if(!item||!list)return;
+      const tid=grip.dataset.stgrip;
+      item.classList.add("st-dragging");
+      item.setPointerCapture(e.pointerId);
+      const onMove=ev=>{
+        ev.preventDefault();
+        const items=[...list.querySelectorAll(".st-item[data-stpos]")];
+        for(const c of items){
+          if(c===item)continue;
+          const r=c.getBoundingClientRect();const mid=r.top+r.height/2;
+          if(ev.clientY<mid&&c.compareDocumentPosition(item)&Node.DOCUMENT_POSITION_FOLLOWING){list.insertBefore(item,c);break}
+          else if(ev.clientY>mid&&c.compareDocumentPosition(item)&Node.DOCUMENT_POSITION_PRECEDING){list.insertBefore(item,c.nextSibling);break}
+        }
+      };
+      const onUp=()=>{
+        item.classList.remove("st-dragging");
+        item.removeEventListener("pointermove",onMove);item.removeEventListener("pointerup",onUp);
+        const newOrder=[...list.querySelectorAll(".st-item[data-stpos]")].map(el=>parseInt(el.dataset.stpos));
+        const t=tasks.find(t=>t.id===tid);if(!t)return;
+        const oldSubs=[...parseSubs(t.subtasks)];
+        const newSubs=newOrder.map(i=>oldSubs[i]).filter(Boolean);
+        updTask(tid,{subtasks:JSON.stringify(newSubs)});
+      };
+      item.addEventListener("pointermove",onMove);
+      item.addEventListener("pointerup",onUp);
+    };
+  });
 
   // Drag handles
   $$("[data-dg]").forEach(h=>{h.onpointerdown=e=>{
