@@ -40,7 +40,7 @@ body{font-family:var(--fb);color:var(--ink);background:var(--paper);min-height:1
 
 /* Header */
 .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-h1{font-family:var(--fd);font-weight:800;font-size:38px;letter-spacing:-.5px;word-spacing:.06em;line-height:1.02}
+h1{font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:-.5px;word-spacing:.06em;line-height:1.05}
 h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);color:var(--ink2);letter-spacing:0;word-spacing:.05em;margin-top:6px}
 .top-btns{display:flex;gap:8px;flex-shrink:0;margin-top:4px}
 .round-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--chip);color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s}
@@ -53,7 +53,7 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 .ambs{display:flex;gap:8px;justify-content:flex-end;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.2,.9,.3,1),opacity .3s,margin .4s;margin:0}
 .ambs.open{max-height:50px;opacity:1;margin:14px 0 2px}
 .ambs button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .2s;padding:0;flex-shrink:0}
-.ambs button.on{border-color:var(--ink);transform:scale(1.12)}
+.ambs button.on{transform:scale(1.22)}
 
 .progress{margin:20px 0 4px}
 .progress-track{height:3px;border-radius:99px;background:var(--hair);overflow:hidden}
@@ -144,6 +144,10 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 .cdot:hover{transform:scale(1.15)}
 .cdot svg{width:13px;height:13px}
 .scl{width:100%;display:flex;align-items:center;justify-content:center;padding:14px;border-radius:16px;border:none;cursor:pointer;min-height:50px;font-family:var(--fd);font-weight:700;font-size:14px;background:var(--ink);color:var(--paper);margin-top:18px}
+.move-grid{display:flex;flex-wrap:wrap;gap:8px}
+.move-pill{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:99px;border:1.5px solid var(--hair);background:var(--field);font-family:var(--fd);font-weight:700;font-size:14px;word-spacing:.05em;color:var(--ink);cursor:pointer;transition:background .15s}
+.move-pill:hover{background:var(--chip)}
+.move-pill i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
 /* Modales */
 .modal-ov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;animation:fadeIn .2s;padding:20px}
@@ -188,7 +192,6 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
   <div class="ambs" id="ambs"></div>
   <div class="progress" id="progress"><div class="progress-track"><div class="progress-fill" id="pfill"></div></div></div>
   <div class="tabs" id="tabs"></div>
-  <div id="trashBar"></div>
   <div class="list" id="tl"></div>
   <div id="empt" class="es hid"></div>
 </div></div>
@@ -426,15 +429,6 @@ function render(){
   if(isTrash)composer.classList.add("hid");else composer.classList.remove("hid");
   if(cat)$("#inp").placeholder=`Nouvelle tâche ${cat.label}…`;
 
-  // Bouton vider la corbeille
-  const tbar=$("#trashBar");
-  if(isTrash&&fl.length){
-    tbar.innerHTML=`<button class="empty-trash" id="emptyTrashBtn">${ic("i-trash")} Vider la corbeille</button>`;
-    tbar.querySelector("#emptyTrashBtn").onclick=()=>{
-      if(confirm(`Vider la corbeille ? Les ${fl.length} élément${fl.length>1?"s":""} seront supprimés définitivement.`))emptyTrash();
-    };
-  }else tbar.innerHTML="";
-
   const tl=$("#tl"),em=$("#empt");
   if(!fl.length){
     tl.innerHTML="";em.classList.remove("hid");
@@ -471,13 +465,16 @@ function render(){
     if(isTrash){
       acts=`<button class="rest" data-rest="${t.id}" title="Restaurer">${ic("i-undo")}</button><button class="del" data-pdel="${t.id}" title="Supprimer définitivement">${ic("i-x")}</button>`;
     }else{
-      acts=`<button class="grip" data-dg="${t.id}" title="Réordonner">${ic("i-grip")}</button><button data-edit="${t.id}" title="Modifier">${ic("i-pen")}</button><button data-col="${t.id}" title="Couleur">${ic("i-pal")}</button><button data-cal="${t.id}" title="Google Agenda">${ic("i-cal")}</button><button class="del" data-del="${t.id}" title="Corbeille">${ic("i-trash")}</button>`;
+      acts=`<button class="grip" data-dg="${t.id}" title="Réordonner">${ic("i-grip")}</button><button data-edit="${t.id}" title="Modifier">${ic("i-pen")}</button><button data-col="${t.id}" title="Couleur / Déplacer">${ic("i-pal")}</button><button data-cal="${t.id}" title="Google Agenda">${ic("i-cal")}</button><button class="del" data-del="${t.id}" title="Corbeille">${ic("i-trash")}</button>`;
     }
 
     return`<div class="${cls}" data-tid="${t.id}" style="${delay}${colored?`background:${bgColor}`:""}"><div class="row-head">${ck}${content}</div><div class="acts">${acts}</div></div>`;
   };
 
   let html="";
+  if(isTrash&&fl.length){
+    html+=`<button class="empty-trash" data-emptytrash>${ic("i-trash")} Vider la corbeille</button>`;
+  }
   active.forEach(t=>{html+=row(t,false)});
   if(done.length&&!isTrash){
     html+=`<div class="done-lbl${firstRender?" rise":""}">Terminées</div>`;
@@ -494,6 +491,13 @@ function render(){
 // BIND
 // ============================================================
 function bindRows(){
+  // Vider la corbeille
+  const et=$("[data-emptytrash]");
+  if(et){et.onclick=()=>{
+    const n=tasks.filter(t=>t.deleted).length;
+    if(confirm(`Vider la corbeille ? Les ${n} élément${n>1?"s":""} seront supprimés définitivement.`))emptyTrash();
+  }}
+
   // Tap rangée = toggle actions (un seul ouvert)
   $$(".row").forEach(r=>{
     r.addEventListener("click",e=>{
@@ -578,9 +582,21 @@ function renderSheet(){
   let h=`<div class="sht">${esc(title)}</div>`;
   h+=`<div class="clbl">Couleurs pleines</div><div class="cgrd">${dot("#FFFFFF",cur==="#FFFFFF")}${SOLIDS.map(c=>dot(c,cur===c)).join("")}</div>`;
   h+=`<div class="clbl">Pastel</div><div class="cgrd">${PASTELS.map(c=>dot(c,cur===c)).join("")}</div>`;
+  const others=CATS.filter(c=>c.id!==t.category);
+  if(others.length){
+    h+=`<div class="clbl">Déplacer vers</div><div class="move-grid">${others.map(c=>`<button class="move-pill" data-mv="${c.id}"><i style="background:${c.color}"></i>${esc(c.label)}</button>`).join("")}</div>`;
+  }
   h+=`<button class="scl" data-sa="close">Fermer</button>`;
   bd.innerHTML=h;
   bd.querySelectorAll("[data-sc]").forEach(d=>{d.onclick=()=>{updTask(sheetId,{color:d.dataset.sc});renderSheet()}});
+  bd.querySelectorAll("[data-mv]").forEach(b=>{b.onclick=()=>{
+    const target=b.dataset.mv;
+    const fl2=tasks.filter(x=>!x.deleted&&x.category===target);
+    const mx=fl2.length?Math.max(...fl2.map(x=>x.position||0)):0;
+    openId=null;
+    updTask(sheetId,{category:target,position:mx+1});
+    closeSheet();
+  }});
   bd.querySelector("[data-sa=close]").onclick=closeSheet;
 }
 
@@ -734,7 +750,6 @@ async function init(){
   loadCats();
   loadAmb();
 
-  $("#dayTitle").insertBefore(document.createTextNode(dateFR()),$("#daySub"));
   renderTabs();render();initInput();
   $("#shov").onclick=closeSheet;
   $("#menuBtn").onclick=openMenu;
