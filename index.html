@@ -47,8 +47,10 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 .round-btn:hover{transform:scale(1.08)}
 .round-btn svg{width:17px;height:17px}
 #ambDot{border:2px solid var(--hair)}
-.syncd{position:absolute;width:8px;height:8px;border-radius:50%;transition:background .3s;margin:-2px 0 0 30px}
-.syncd.on{background:var(--success)}.syncd.off{background:#F59E0B}
+/* Pastille d'état de la synchro, posée sur le bouton menu */
+#menuBtn{position:relative}
+.syncd{position:absolute;top:-1px;right:1px;width:10px;height:10px;border-radius:50%;border:2px solid var(--paper);background:var(--ink3);transition:background .3s}
+.syncd.ok{background:var(--success)}.syncd.wait{background:#F59E0B}.syncd.alert{background:var(--danger)}
 
 .ambs{display:flex;gap:8px;justify-content:flex-end;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.2,.9,.3,1),opacity .3s,margin .4s;margin:0}
 .ambs.open{max-height:50px;opacity:1;margin:14px 0 2px}
@@ -176,6 +178,49 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 .es{text-align:center;padding:56px 20px;opacity:.35;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeIn .5s}
 .es p{font-family:var(--fd);font-size:19px;font-weight:700;word-spacing:.06em;color:var(--ink3)}
 .hid{display:none!important}
+
+/* Menu : bloc Synchronisation et compte. Libellés en ink2 (ink3 n'atteint pas 4,5 sur fond blanc) */
+.sy-lbl{font-family:var(--fd);font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:var(--ink2);margin:16px 0 8px}
+.sy-card{background:var(--chip);border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.sy-dot{flex-shrink:0;width:10px;height:10px;border-radius:50%;margin-top:6px;background:var(--ink3)}
+.sy-dot.ok{background:var(--success)}.sy-dot.wait{background:#F59E0B}.sy-dot.alert{background:var(--danger)}
+.sy-t{font-weight:600;font-size:15px;line-height:1.4}
+.sy-s{font-size:13.5px;color:var(--ink2);line-height:1.45;margin-top:3px}
+.sy-btn{width:100%;display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;border:1.5px solid var(--hair);background:var(--field);min-height:50px;font-family:var(--fb);font-weight:700;font-size:14px;word-spacing:.05em;color:var(--ink);text-align:left;cursor:pointer;margin-top:8px}
+.sy-btn svg{width:17px;height:17px;flex-shrink:0}
+.sy-acc{font-size:14px;color:var(--ink2);line-height:1.45;margin-bottom:8px;word-break:break-word}
+
+/* Questions de conflit */
+.cf-n{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:6px}
+.cf-p{font-size:14.5px;color:var(--ink2);line-height:1.5;margin:-4px 0 14px}
+.cf-opt{position:relative;width:100%;text-align:left;background:var(--field);border:2px solid var(--hair);border-radius:16px;padding:14px 44px 14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;font-family:var(--fb);color:var(--ink);margin-bottom:10px}
+.cf-opt.sel{border-color:var(--ink)}
+.cf-opt.cf-static{cursor:default;padding-right:16px}
+.cf-k{font-family:var(--fd);font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:var(--ink2)}
+.cf-v{font-family:var(--fd);font-weight:700;font-size:17px;line-height:1.3;word-break:break-word}
+.cf-m{font-size:13px;color:var(--ink2);line-height:1.45}
+.cf-d{white-space:pre-wrap;word-break:break-word}
+.cf-c{display:flex;align-items:center;gap:6px}
+.cf-c i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--hair);display:inline-block}
+.cf-ck{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:none;align-items:center;justify-content:center}
+.cf-opt.sel .cf-ck{display:flex}
+.cf-ck svg{width:12px;height:12px}
+.cf-go{width:100%;min-height:50px;padding:14px;border-radius:16px;border:none;background:var(--ink);color:var(--paper);font-family:var(--fd);font-weight:700;font-size:14px;cursor:pointer;margin-top:4px}
+.cf-go:disabled{opacity:.4;cursor:default}
+
+/* Écran de connexion */
+#login{position:fixed;inset:0;z-index:400;background:var(--paper);color:var(--ink);overflow-y:auto}
+.lg-in{max-width:var(--maxw);margin:0 auto;padding:96px 24px 40px;display:flex;flex-direction:column;gap:22px}
+.lg-mark{font-family:var(--fd);font-weight:800;font-size:11px;letter-spacing:3px;color:var(--ink2)}
+.lg-form{display:flex;flex-direction:column;gap:14px}
+.lg-f{display:flex;flex-direction:column;gap:6px}
+.lg-f span{font-size:13px;font-weight:600;color:var(--ink2)}
+.lg-f input{font-family:var(--fb);font-size:16px;font-weight:600;padding:12px 16px;border-radius:14px;border:1.5px solid var(--hair);background:var(--field);color:var(--ink);outline:0;min-height:48px;-webkit-appearance:none}
+.lg-f input:focus{border-color:var(--ink3)}
+.lg-go{width:100%;min-height:50px;padding:14px;border-radius:16px;border:none;background:var(--ink);color:var(--paper);font-family:var(--fd);font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
+.lg-go:disabled{opacity:.6;cursor:default}
+.lg-alt{width:100%;min-height:50px;padding:14px;border-radius:16px;border:none;background:var(--chip);color:var(--ink);font-family:var(--fd);font-weight:700;font-size:14px;cursor:pointer}
+.lg-note{font-size:13.5px;color:var(--ink2);line-height:1.5}
 </style>
 </head>
 <body data-amb="galet">
@@ -184,9 +229,8 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
   <div class="top">
     <h1 id="dayTitle">…<small id="daySub"></small></h1>
     <div class="top-btns">
-      <div class="syncd" id="syncd"></div>
       <button class="round-btn" id="ambDot" title="Ambiance"></button>
-      <button class="round-btn" id="menuBtn" title="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      <button class="round-btn" id="menuBtn" title="Menu" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg><span class="syncd" id="syncd"></span></button>
     </div>
   </div>
   <div class="ambs" id="ambs"></div>
@@ -204,6 +248,7 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 <div id="shov" class="sho hid"></div>
 <div id="shee" class="sh hid"><div class="shh"></div><div class="shb" id="shbd"></div></div>
 <div id="modalOv" class="modal-ov hid"></div>
+<div id="login" class="hid"></div>
 <input type="file" id="importFile" accept="application/json" style="display:none">
 
 <svg style="display:none">
@@ -220,8 +265,12 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SB_URL="https://lqcwmnrvusdfutfwqtul.supabase.co";
-const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxY3dtbnJ2dXNkZnV0ZndxdHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMjk4NzQsImV4cCI6MjA5MDcwNTg3NH0.WTtJNtts44g85XQoAM2fczlpYlsKFgPaAKpUOpEXMs0";
+/* Clé publique du projet : elle est faite pour être exposée. L'accès aux données
+   dépend de la connexion au compte et des politiques de la base, pas de cette clé. */
+const SB_KEY="sb_publishable_8IM24F2CiH64VpkjS3JDUQ_mE7Rqpy_";
 const SK="daily-flow-v3";
+/* Clés de stockage de la synchro, toutes préfixées daily-flow-v3 (aucune collision avec Budget perso) */
+const K_BASE=SK+"-base",K_PBASE=SK+"-prefs-base",K_INFL=SK+"-inflight",K_OWNER=SK+"-owner",K_EMAIL=SK+"-email",K_LAST=SK+"-lastsync";
 
 const DEFAULT_CATS=[{id:"perso",label:"Perso",color:"#FF5A36"},{id:"pro",label:"Pro",color:"#0052FF"}];
 const TRASH_LABEL="Corbeille";
@@ -235,10 +284,13 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const ic=id=>`<svg><use href="#${id}"/></svg>`;
 const mkId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const esc=s=>{const d=document.createElement("div");d.textContent=s;return d.innerHTML};
+const escA=s=>esc(s).replace(/"/g,"&quot;");
 const now=()=>Date.now();
 function dateFR(){const d=new Date();return["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"][d.getDay()]+" "+d.getDate()+" "+["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"][d.getMonth()]}
 function autoGrow(ta){ta.style.height="auto";ta.style.height=ta.scrollHeight+"px"}
 function splitText(t){const lines=(t||"").split("\n");return{title:lines[0]||"",details:lines.slice(1).join("\n").trim()}}
+function hm(ts){const d=new Date(ts),n=new Date();const h=`${d.getHours()} h ${String(d.getMinutes()).padStart(2,"0")}`;return d.toDateString()===n.toDateString()?`à ${h}`:`le ${d.getDate()}/${String(d.getMonth()+1).padStart(2,"0")} à ${h}`}
+const pl=(n,s,p)=>n>1?p:s;
 
 let tasks=[];
 let CATS=[...DEFAULT_CATS];
@@ -253,102 +305,555 @@ let justAdded=null;
 let justDone=null;
 let firstRender=true;
 
-const urlUid=new URLSearchParams(location.search).get("uid");
-if(urlUid)localStorage.setItem("df-uid",urlUid);
-let userId=localStorage.getItem("df-uid");
-if(!userId){userId=mkId();localStorage.setItem("df-uid",userId)}
-let sb=null,syncing=false;
+/* ============================================================
+   SYNCHRO : état
+   base[id] = dernière version du serveur vue par cet appareil (v = updated_at, plus les champs gérés).
+   Une modification locale se détecte en comparant la tâche à sa base, jamais par un drapeau.
+   ============================================================ */
+function loadJSON(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function saveJSON(k,v){if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}
+let sb=null,uid=null,token=null;
+let authState="unknown";       /* ok | required | none | unknown */
+let netState="unknown";        /* online | offline | unknown */
+let offlineSince=null;
+let base=loadJSON(K_BASE,null);   /* null : cet appareil n'a jamais synchronisé */
+let pbase=loadJSON(K_PBASE,null);
+let inflight=loadJSON(K_INFL,{});
+let lastSync=Number(localStorage.getItem(K_LAST))||null;
+let conflicts=[];
+let syncing=false,syncAgain=false,syncTimer=null,runP=null;
+let needRender=false,channels=[],manualLogout=false,loginShown=false,menuOpen=false;
+let cfOpen=false,cfPick=null,cfShown="",cfEpoch=0;
 
-function loadLocal(){try{return JSON.parse(localStorage.getItem(SK))||[]}catch{return[]}}
+const FIELDS=["text","category","completed","deleted","position","color","deleted_at"];
+const SILENT=["position","deleted_at"];   /* en cas de double modification, la version en ligne l'emporte sans question */
+const FIELD_LBL={text:"texte",category:"catégorie",completed:"état fait ou à faire",deleted:"présence dans la corbeille",color:"couleur"};
+
+/* Normalisation commune à la copie locale et à la version en ligne, avant toute comparaison */
+function nt(t){return{text:String(t.text??""),category:String(t.category??""),completed:!!t.completed,deleted:!!t.deleted,position:Number(t.position)||0,color:String(t.color||"#FFFFFF"),deleted_at:t.deleted_at==null?null:Number(t.deleted_at)}}
+function diffF(a,b){const A=nt(a),B=nt(b);return FIELDS.filter(f=>A[f]!==B[f])}
+function toLocal(r){return{id:r.id,...nt(r),created_at:Number(r.created_at)||now(),updated_at:Number(r.updated_at)||0}}
+function toBase(r){return{v:Number(r.updated_at),...nt(r)}}
+function catsStr(c){let a=c;if(typeof a==="string"){try{a=JSON.parse(a)}catch(e){a=[]}}if(!Array.isArray(a))a=[];return JSON.stringify(a.filter(x=>x&&x.id&&x.id!=="trash").map(x=>({id:String(x.id),label:String(x.label??""),color:String(x.color??"")})))}
+function prefsLocal(){return{cats:catsStr(CATS),theme:amb}}
+function byPos(a,b){return(a.position||0)-(b.position||0)}
+
+function localChanges(){
+  if(!base)return[];
+  const out=[],seen=new Set();
+  for(const t of tasks){seen.add(t.id);const b=base[t.id];if(!b||diffF(t,b).length)out.push(t.id)}
+  for(const id in base)if(!seen.has(id))out.push(id);
+  return out;
+}
+function prefsChanged(){if(!pbase)return false;const p=prefsLocal();return p.cats!==pbase.cats||p.theme!==pbase.theme}
+function pendingCount(){return localChanges().length+(prefsChanged()?1:0)}
+
+function loadLocal(){try{return JSON.parse(localStorage.getItem(SK))||[]}catch(e){return[]}}
 function saveLocal(){localStorage.setItem(SK,JSON.stringify(tasks))}
+function saveSync(){saveJSON(K_BASE,base);saveJSON(K_PBASE,pbase);saveJSON(K_INFL,inflight)}
 function loadCats(){try{const c=JSON.parse(localStorage.getItem(SK+"-cats"));if(c&&Array.isArray(c)&&c.length)CATS=c}catch(e){}}
 function saveCatsLocal(){localStorage.setItem(SK+"-cats",JSON.stringify(CATS))}
 function loadAmb(){const a=localStorage.getItem(SK+"-amb");if(a&&AMBS.includes(a))amb=a;applyAmb()}
 function applyAmb(){document.body.dataset.amb=amb;localStorage.setItem(SK+"-amb",amb);const d=$("#ambDot");if(d)d.style.background=AMB_PREVIEW[amb];renderAmbBar()}
+function setLocal(obj){const i=tasks.findIndex(t=>t.id===obj.id);if(i>=0)tasks[i]={...tasks[i],...obj};else tasks.push(obj)}
+function removeLocal(id){tasks=tasks.filter(t=>t.id!==id);if(openId===id)openId=null}
 
-function taskRow(t){
-  return{id:t.id,user_id:userId,text:t.text||"",category:t.category||CATS[0].id,
-    completed:!!t.completed,deleted:!!t.deleted,position:t.position||0,
-    color:t.color||"#FFFFFF",created_at:t.created_at||now(),
-    updated_at:t.updated_at||now(),deleted_at:t.deleted_at||null};
+/* Toute modification locale passe par ici : enregistrement sur l'appareil, puis envoi automatique une seconde après */
+function touch(){saveLocal();updDot();scheduleSync(1000)}
+
+/* ============================================================
+   SYNCHRO : erreurs et état du réseau
+   ============================================================ */
+function isNetErr(e){if(!e)return false;if(e.status===0||e.name==="AuthRetryableFetchError")return true;return/fetch|network|load failed|timeout|connexion/i.test(String(e.message||e))}
+function errKind(res){
+  if(!res||!res.error)return null;
+  const e=res.error,st=res.status;
+  if(st===0||isNetErr(e))return"net";
+  if(st===401||e.code==="PGRST301"||e.code==="PGRST303"||/jwt/i.test(e.message||""))return"auth";
+  if(st===409||e.code==="23505")return"conflict";
+  return"other";
 }
-
-async function initSync(){
+function netFail(){if(netState!=="offline"){netState="offline";offlineSince=now()}updDot();if(document.visibilityState==="visible")scheduleSync(20000)}
+function netOk(){netState="online";offlineSince=null}
+async function tryRefresh(){
   try{
-    sb=createClient(SB_URL,SB_KEY);
-    const{data,error}=await sb.from("tasks").select("*").eq("user_id",userId);
-    if(error){console.warn("Fetch error:",error);throw error}
-    const{data:pc}=await sb.from("prefs").select("user_id").eq("user_id",userId);
-    const isFirstEver=!pc||pc.length===0;
-    if(data&&data.length>0){tasks=data.sort((a,b)=>(a.position||0)-(b.position||0));saveLocal()}
-    else if(isFirstEver&&tasks.length>0){await pushAll()}
-    else{tasks=[];saveLocal()}
-    if(isFirstEver){await syncPrefsRow()}
-    await fetchPrefsRow();
-    sb.channel("tasks-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"tasks",filter:`user_id=eq.${userId}`},handleRemote).subscribe();
-    sb.channel("prefs-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"prefs",filter:`user_id=eq.${userId}`},()=>fetchPrefsRow()).subscribe();
-    syncing=true;updDot();
-  }catch(e){console.warn("Sync offline:",e);syncing=false;updDot()}
+    const{data,error}=await sb.auth.refreshSession();
+    if(data&&data.session){token=data.session.access_token;return true}
+    if(error&&isNetErr(error)){netFail();return false}
+    setAuthRequired();return false;
+  }catch(e){if(isNetErr(e))netFail();return false}
 }
 
-function handleRemote(payload){
-  if(payload.eventType==="DELETE"){tasks=tasks.filter(t=>t.id!==payload.old.id)}
-  else{const r=payload.new;const i=tasks.findIndex(t=>t.id===r.id);if(i>=0)tasks[i]=r;else tasks.push(r)}
-  tasks.sort((a,b)=>(a.position||0)-(b.position||0));
-  saveLocal();
-  if(document.activeElement&&document.activeElement.classList.contains("tedit"))return;
-  if(isDragging)return;
-  render();
+/* ============================================================
+   SYNCHRO : file unique, jamais deux synchros en parallèle
+   ============================================================ */
+function scheduleSync(ms){clearTimeout(syncTimer);syncTimer=setTimeout(()=>{syncTimer=null;syncNow("auto")},ms)}
+function syncNow(why){
+  if(runP){syncAgain=true;return runP}
+  clearTimeout(syncTimer);syncTimer=null;
+  runP=(async()=>{
+    let n=0;
+    do{syncAgain=false;await doSync(why);n++}while(syncAgain&&n<4);
+    if(syncAgain)scheduleSync(3000);
+  })().finally(()=>{runP=null;refreshUI()});
+  return runP;
 }
 
-async function pushAll(){
-  if(!sb)return;
-  const rows=tasks.map(t=>taskRow(t));
-  if(rows.length){const{error}=await sb.from("tasks").upsert(rows,{onConflict:"id"});if(error)console.warn("Push error:",error)}
-}
-async function syncTask(t){
-  if(!sb)return;
-  const{error}=await sb.from("tasks").upsert(taskRow(t),{onConflict:"id"});
-  if(error)console.warn("Sync error:",error);
-}
-async function hardDelete(id){
-  if(!sb)return;
-  const{error}=await sb.from("tasks").delete().eq("id",id).eq("user_id",userId);
-  if(error)console.warn("Delete error:",error);
-}
-async function hardDeleteAllTrash(){
-  if(!sb)return;
-  const{error}=await sb.from("tasks").delete().eq("user_id",userId).eq("deleted",true);
-  if(error)console.warn("Empty trash error:",error);
-}
-async function syncPrefsRow(){
-  if(!sb)return;
-  try{await sb.from("prefs").upsert({user_id:userId,cats:JSON.stringify(CATS),theme:amb,updated_at:now()},{onConflict:"user_id"})}catch(e){console.warn("Prefs sync:",e)}
-}
-async function fetchPrefsRow(){
-  if(!sb)return;
+async function doSync(why){
+  if(!sb||authState!=="ok"||!uid)return;
+  if(isDragging){scheduleSync(1700);return}
+  syncing=true;updDot();
+  const ep=cfEpoch;
   try{
-    const{data}=await sb.from("prefs").select("cats,theme").eq("user_id",userId).single();
-    if(data){
-      if(data.cats){
-        const c=JSON.parse(data.cats);
-        if(Array.isArray(c)&&c.length){
-          CATS=c.filter(x=>x.id!=="trash").map(x=>({id:x.id,label:x.label,color:x.color}));
-          if(!CATS.length)CATS=[...DEFAULT_CATS];
-          if(!CATS.find(c2=>c2.id===tab)&&tab!=="trash")tab=CATS[0].id;
-          saveCatsLocal();
-        }
-      }
-      if(data.theme&&AMBS.includes(data.theme)&&data.theme!==amb){amb=data.theme;applyAmb()}
-      renderTabs();render();
+    const[rt,rp]=await Promise.all([
+      sb.from("tasks").select("*").eq("user_id",uid),
+      sb.from("prefs").select("*").eq("user_id",uid)
+    ]);
+    for(const r of[rt,rp]){
+      const k=errKind(r);
+      if(k==="net"){netFail();return}
+      if(k==="auth"){if(await tryRefresh())syncAgain=true;return}
+      if(k){console.warn("Lecture refusée :",r.error);return}
     }
-  }catch(e){}
+    netOk();
+    const server=new Map((rt.data||[]).map(r=>[r.id,r]));
+    const prow=(rp.data||[])[0]||null;
+    const cf=[];
+    if(!(await syncTasks(server,prow,cf)))return;
+    if(!(await syncPrefs(prow,cf)))return;
+    if(ep===cfEpoch)conflicts=cf;else syncAgain=true;   /* un conflit a été tranché pendant la synchro : on relit avant d'afficher */
+    lastSync=now();localStorage.setItem(K_LAST,String(lastSync));
+  }catch(e){if(isNetErr(e))netFail();else console.warn("Synchro :",e)}
+  finally{syncing=false;saveSync()}
 }
+
+/* Décision tâche par tâche, en comparant la copie locale (L), la base (B) et la version en ligne (S) */
+async function syncTasks(server,prow,cf){
+  if(!base){
+    const legacy=!!localStorage.getItem("df-uid");               /* appareil de l'ancienne version : ses tâches sont déjà en ligne sous l'ancien identifiant, jamais renvoyées */
+    if(server.size===0&&!prow&&tasks.length&&!legacy){base={}}  /* tout premier appareil d'un compte vide : ses tâches seront envoyées */
+    else{                                                          /* sinon, au premier passage, la version en ligne fait foi */
+      tasks=[...server.values()].map(toLocal).sort(byPos);
+      base={};for(const r of server.values())base[r.id]=toBase(r);
+      inflight={};saveLocal();saveSync();needRender=true;
+      return true;
+    }
+  }
+  const lmap=new Map(tasks.map(t=>[t.id,t]));
+  const ops=[];let changed=false;
+  const ids=new Set([...lmap.keys(),...Object.keys(base),...server.keys()]);
+  for(const id of ids){
+    if(id===editId)continue;                        /* tâche en cours d'édition : traitée à la fin de l'édition */
+    const L=lmap.get(id),S=server.get(id);let B=base[id];
+    const I=inflight[id];
+    if(I){                                          /* reconnaître son propre envoi dont la réponse s'est perdue */
+      if(I.op==="del"){if(!S){delete base[id];B=undefined}}
+      else if(S&&Number(S.updated_at)===I.v){base[id]=toBase(S);B=base[id]}
+      else if(S&&I.op==="ins"&&I.c){base[id]={v:I.v,...I.c};B=base[id]}   /* création arrivée puis modifiée ailleurs */
+      delete inflight[id];
+    }
+    const lc=L?(!B||diffF(L,B).length>0):!!B;
+    const sc=S?(!B||Number(S.updated_at)!==B.v):!!B;
+    if(!lc&&!sc)continue;
+    if(lc&&!sc){
+      if(L&&!B)ops.push({k:"ins",id});
+      else if(L)ops.push({k:"upd",id});
+      else ops.push({k:"del",id});
+      continue;
+    }
+    if(!lc&&sc){
+      if(S){setLocal(toLocal(S));base[id]=toBase(S)}
+      else{removeLocal(id);delete base[id]}
+      changed=true;continue;
+    }
+    /* modifiée des deux côtés */
+    if(!L&&!S){delete base[id];continue}
+    if(L&&!B&&S){base[id]=toBase(S);if(diffF(L,S).length)ops.push({k:"upd",id});continue}
+    if(L&&B&&S){
+      const Ln=nt(L),Sn=nt(S),M={...Ln},clash=[];
+      for(const f of FIELDS){
+        const lf=Ln[f]!==B[f],sf=Sn[f]!==B[f];
+        if(sf&&!lf)M[f]=Sn[f];
+        else if(lf&&sf&&Ln[f]!==Sn[f]){if(SILENT.includes(f))M[f]=Sn[f];else clash.push(f)}
+      }
+      if(clash.length){cf.push({k:"fields",id,fields:clash,L:Ln,Lt:Number(L.updated_at)||0,S,M});continue}
+      setLocal({...L,...M});base[id]=toBase(S);changed=true;
+      if(diffF(M,Sn).length)ops.push({k:"upd",id});
+      continue;
+    }
+    if(L&&B&&!S){                                   /* supprimée ailleurs, modifiée ici */
+      if(diffF(L,B).every(f=>SILENT.includes(f))){removeLocal(id);delete base[id];changed=true}
+      else cf.push({k:"delRemote",id,L:nt(L)});
+      continue;
+    }
+    if(!L&&B&&S){                                   /* supprimée ici, modifiée ailleurs */
+      if(diffF(S,B).every(f=>SILENT.includes(f))){base[id]=toBase(S);ops.push({k:"del",id})}
+      else cf.push({k:"delLocal",id,S});
+      continue;
+    }
+  }
+  if(changed){tasks.sort(byPos);saveLocal();needRender=true}
+  saveSync();
+  for(const op of ops){
+    const r=await runOp(op);
+    if(r==="net"||r==="auth")return false;
+    if(r==="retry")syncAgain=true;
+  }
+  return true;
+}
+
+/* Envoi conditionnel : il n'aboutit que si la version en ligne est toujours celle de la base */
+async function runOp(op){
+  const id=op.id,L=tasks.find(t=>t.id===id),B=base[id];
+  let res;
+  if(op.k==="ins"){
+    if(!L)return"ok";
+    const v=now();
+    inflight[id]={op:"ins",v,c:nt(L)};saveSync();
+    res=await sb.from("tasks").insert({id,user_id:uid,...nt(L),created_at:Number(L.created_at)||now(),updated_at:v}).select();
+  }else if(op.k==="upd"){
+    if(!L||!B)return"retry";
+    const v=Math.max(now(),B.v+1),Ln=nt(L),patch={updated_at:v};
+    for(const f of diffF(L,B))patch[f]=Ln[f];
+    inflight[id]={op:"upd",v,c:Ln};saveSync();
+    res=await sb.from("tasks").update(patch).eq("id",id).eq("updated_at",B.v).select();
+  }else{
+    if(!B)return"ok";
+    inflight[id]={op:"del",v:B.v};saveSync();
+    res=await sb.from("tasks").delete().eq("id",id).eq("updated_at",B.v).select();
+  }
+  const k=errKind(res);
+  if(k==="net"){netFail();return"net"}                  /* l'envoi reste mémorisé : s'il est arrivé, la synchro suivante le reconnaîtra */
+  delete inflight[id];
+  if(k==="auth"){saveSync();return(await tryRefresh())?"retry":"auth"}
+  if(k==="conflict"&&op.k==="ins"&&L){                  /* identifiant déjà pris par une ligne invisible : on en change */
+    const nid=mkId();if(openId===id)openId=nid;L.id=nid;saveLocal();saveSync();return"retry";
+  }
+  if(k){saveSync();console.warn("Envoi refusé :",res.error);return"other"}      /* pas de relance en boucle : le prochain déclencheur réessaiera */
+  const rows=res.data||[];
+  if(op.k==="del"){if(!rows.length){saveSync();return"retry"}delete base[id]}
+  else{if(!rows.length){saveSync();return"retry"}base[id]=toBase(rows[0])}
+  saveSync();return"ok";
+}
+
+/* Préférences : même logique sur l'unique ligne prefs, champ par champ (catégories, ambiance) */
+function adoptPrefs(prow){
+  let c=[];try{c=JSON.parse(catsStr(prow.cats))}catch(e){}
+  if(c.length){CATS=c;saveCatsLocal()}
+  if(prow.theme&&AMBS.includes(prow.theme)&&prow.theme!==amb){amb=prow.theme;applyAmb()}
+  if(!CATS.find(x=>x.id===tab)&&tab!=="trash")tab=CATS[0].id;
+  pbase={v:Number(prow.updated_at),cats:catsStr(prow.cats),theme:prow.theme??null};
+  needRender=true;
+}
+async function syncPrefs(prow,cf){
+  const I=inflight.__prefs;
+  if(I){if(prow&&Number(prow.updated_at)===I.v)pbase={v:I.v,cats:catsStr(prow.cats),theme:prow.theme??null};delete inflight.__prefs}
+  if(!pbase){if(prow){adoptPrefs(prow);saveSync();return true}pbase={v:null,cats:"",theme:null}}
+  const P=prefsLocal();
+  const lc=P.cats!==pbase.cats||P.theme!==pbase.theme;
+  const sc=prow?Number(prow.updated_at)!==pbase.v:pbase.v!==null;
+  if(!lc&&!sc)return true;
+  if(!lc&&sc){if(prow)adoptPrefs(prow);else pbase={v:null,cats:"",theme:null};saveSync();return true}
+  let send=P;
+  if(lc&&sc&&prow){
+    const Sp={cats:catsStr(prow.cats),theme:prow.theme??null};
+    const cl=P.cats!==pbase.cats&&Sp.cats!==pbase.cats&&P.cats!==Sp.cats;
+    if(cl){cf.push({k:"cats",id:"__prefs",L:P.cats,S:prow});return true}
+    const M={cats:P.cats!==pbase.cats?P.cats:Sp.cats,theme:(Sp.theme!==pbase.theme)?Sp.theme:P.theme};
+    if(M.cats!==P.cats){CATS=JSON.parse(M.cats);saveCatsLocal();if(!CATS.find(x=>x.id===tab)&&tab!=="trash")tab=CATS[0].id}
+    if(M.theme&&AMBS.includes(M.theme)&&M.theme!==amb){amb=M.theme;applyAmb()}
+    pbase={v:Number(prow.updated_at),...Sp};needRender=true;send=prefsLocal();
+    if(send.cats===pbase.cats&&send.theme===pbase.theme){saveSync();return true}
+  }else if(lc&&sc&&!prow){pbase={v:null,cats:"",theme:null}}
+  const v=Math.max(now(),(pbase.v||0)+1);
+  inflight.__prefs={op:pbase.v===null?"ins":"upd",v};saveSync();
+  let res;
+  if(pbase.v===null)res=await sb.from("prefs").insert({user_id:uid,cats:send.cats,theme:send.theme,updated_at:v}).select();
+  else{
+    const patch={updated_at:v};if(send.cats!==pbase.cats)patch.cats=send.cats;if(send.theme!==pbase.theme)patch.theme=send.theme;
+    res=await sb.from("prefs").update(patch).eq("user_id",uid).eq("updated_at",pbase.v).select();
+  }
+  const k=errKind(res);
+  if(k==="net"){netFail();return false}
+  delete inflight.__prefs;
+  if(k==="auth"){saveSync();if(await tryRefresh())syncAgain=true;return false}
+  if(k||!(res.data||[]).length){saveSync();syncAgain=true;return true}
+  const r=res.data[0];pbase={v:Number(r.updated_at),cats:catsStr(r.cats),theme:r.theme??null};saveSync();
+  return true;
+}
+
+/* ============================================================
+   TEMPS RÉEL : un simple signal qui déclenche une relecture
+   ============================================================ */
+function unsubscribeRT(){for(const c of channels){try{sb.removeChannel(c)}catch(e){}}channels=[]}
+function subscribeRT(){
+  unsubscribeRT();
+  const onSt=st=>{if(st==="SUBSCRIBED")scheduleSync(300)};
+  const t=sb.channel("df-tasks-"+uid)
+    .on("postgres_changes",{event:"*",schema:"public",table:"tasks",filter:`user_id=eq.${uid}`},onRT)
+    .on("postgres_changes",{event:"DELETE",schema:"public",table:"tasks"},onRT)
+    .subscribe(onSt);
+  const p=sb.channel("df-prefs-"+uid)
+    .on("postgres_changes",{event:"*",schema:"public",table:"prefs",filter:`user_id=eq.${uid}`},onRTP)
+    .subscribe(onSt);
+  channels=[t,p];
+}
+function onRT(p){
+  if(!base)return;
+  if(p.eventType==="DELETE"){const id=p.old&&p.old.id;if(id&&base[id])scheduleSync(800);return}
+  const r=p.new;if(!r)return;
+  const v=Number(r.updated_at),b=base[r.id],I=inflight[r.id];
+  if((b&&b.v===v)||(I&&I.v===v))return;           /* écho de son propre envoi */
+  scheduleSync(800);
+}
+function onRTP(p){
+  const v=Number(p.new&&p.new.updated_at);
+  if(pbase&&pbase.v===v)return;
+  const I=inflight.__prefs;if(I&&I.v===v)return;
+  scheduleSync(800);
+}
+
+/* ============================================================
+   MISE EN ARRIÈRE-PLAN : envoi immédiat, sans relecture préalable
+   ============================================================ */
+function flushOnHide(){
+  clearTimeout(syncTimer);syncTimer=null;
+  if(runP||authState!=="ok"||!uid||!token||!base)return;
+  const H={apikey:SB_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",Prefer:"return=minimal"};
+  const lmap=new Map(tasks.map(t=>[t.id,t]));
+  const send=(url,method,body)=>{try{fetch(url,{method,headers:H,body:body?JSON.stringify(body):undefined,keepalive:true}).catch(()=>{})}catch(e){}};
+  let n=0;
+  for(const id of localChanges()){
+    if(n>=20)break;if(id===editId)continue;
+    const L=lmap.get(id),B=base[id],q=`${SB_URL}/rest/v1/tasks?id=eq.${encodeURIComponent(id)}`;
+    if(L&&!B){const v=now();inflight[id]={op:"ins",v,c:nt(L)};send(`${SB_URL}/rest/v1/tasks`,"POST",{id,user_id:uid,...nt(L),created_at:Number(L.created_at)||now(),updated_at:v})}
+    else if(L){const v=Math.max(now(),B.v+1),Ln=nt(L),patch={updated_at:v};for(const f of diffF(L,B))patch[f]=Ln[f];inflight[id]={op:"upd",v,c:Ln};send(`${q}&updated_at=eq.${B.v}`,"PATCH",patch)}
+    else{inflight[id]={op:"del",v:B.v};send(`${q}&updated_at=eq.${B.v}`,"DELETE")}
+    n++;
+  }
+  if(pbase&&prefsChanged()){
+    const P=prefsLocal(),v=Math.max(now(),(pbase.v||0)+1);
+    inflight.__prefs={op:pbase.v===null?"ins":"upd",v};
+    if(pbase.v===null)send(`${SB_URL}/rest/v1/prefs`,"POST",{user_id:uid,cats:P.cats,theme:P.theme,updated_at:v});
+    else{const patch={updated_at:v};if(P.cats!==pbase.cats)patch.cats=P.cats;if(P.theme!==pbase.theme)patch.theme=P.theme;send(`${SB_URL}/rest/v1/prefs?user_id=eq.${encodeURIComponent(uid)}&updated_at=eq.${pbase.v}`,"PATCH",patch)}
+  }
+  saveSync();
+}
+
+/* ============================================================
+   CONNEXION
+   ============================================================ */
+function setAuthRequired(){if(authState==="required")return;authState="required";unsubscribeRT();updDot()}
+function startSession(s){
+  if(!s||!s.user)return;
+  const id=s.user.id,owner=localStorage.getItem(K_OWNER);
+  token=s.access_token;
+  if(owner&&owner!==id)resetLocalData();                 /* autre compte : on repart de zéro sur cet appareil */
+  uid=id;localStorage.setItem(K_OWNER,id);if(s.user.email)localStorage.setItem(K_EMAIL,s.user.email);
+  const was=authState;authState="ok";hideLogin();
+  if(!channels.length)subscribeRT();
+  updDot();
+  if(was!=="ok"||!lastSync)syncNow("session");
+}
+function resetLocalData(){
+  tasks=[];base=null;pbase=null;inflight={};conflicts=[];lastSync=null;
+  CATS=[...DEFAULT_CATS];tab=CATS[0].id;
+  saveLocal();saveSync();saveCatsLocal();localStorage.removeItem(K_LAST);
+  needRender=true;
+}
+async function recoverAuth(){
+  if(!sb||authState==="none"||loginShown&&authState!=="required")return;
+  try{
+    const{data,error}=await sb.auth.getSession();
+    if(data&&data.session)return startSession(data.session);
+    if(error&&isNetErr(error)){netFail();return}
+    if(localStorage.getItem(K_OWNER))setAuthRequired();
+  }catch(e){if(isNetErr(e))netFail()}
+}
+async function initAuth(){
+  sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:SK+"-auth"}});
+  sb.auth.onAuthStateChange((ev,session)=>{
+    token=session?session.access_token:token;
+    if(ev==="SIGNED_OUT"){token=null;if(!manualLogout&&uid)setAuthRequired();return}
+    if(session&&authState!=="ok"&&!manualLogout&&uid&&session.user.id===uid)setTimeout(()=>startSession(session),0);
+  });
+  let session=null,err=null;
+  try{const r=await sb.auth.getSession();session=r.data&&r.data.session;err=r.error}catch(e){err=e}
+  if(session)return startSession(session);
+  const owner=localStorage.getItem(K_OWNER);
+  if(!owner){authState="none";showLogin("first");return}
+  uid=owner;                                              /* appareil déjà relié : l'app reste utilisable avec la copie locale */
+  if(err&&isNetErr(err)){authState="unknown";netFail()}
+  else setAuthRequired();
+}
+async function doLogin(email,pw,mode){
+  const btn=$("#lgGo");if(btn){btn.disabled=true;btn.textContent="Connexion…"}
+  loginMsg("");
+  try{
+    const{data,error}=await sb.auth.signInWithPassword({email,password:pw});
+    if(error){loginMsg(isNetErr(error)?"Pas de réseau pour l'instant. Réessaie dans un moment.":(error.status===400||/invalid/i.test(error.message||"")?"Adresse ou mot de passe incorrect.":"Connexion refusée : "+(error.message||"erreur inconnue")));return}
+    startSession(data.session);
+  }catch(e){loginMsg("Pas de réseau pour l'instant. Réessaie dans un moment.")}
+  finally{const b=$("#lgGo");if(b){b.disabled=false;b.textContent=mode==="again"?"Se reconnecter":"Se connecter"}}
+}
+function loginMsg(m){const el=$("#lgErr");if(!el)return;el.innerHTML=m?`<div class="sy-card"><span class="sy-dot alert"></span><div><div class="sy-t">${esc(m)}</div></div></div>`:""}
+function showLogin(mode){
+  loginShown=true;const el=$("#login");el.classList.remove("hid");
+  const n=pendingCount(),em=localStorage.getItem(K_EMAIL)||"";
+  let h=`<div class="lg-in"><div class="lg-mark">DAILY FLOW</div>`;
+  if(mode==="again"){
+    h+=`<h1>Reconnexion</h1><div class="sy-card"><span class="sy-dot alert"></span><div><div class="sy-t">Ta session n'est plus valide</div><div class="sy-s">${n?`${n>1?`Tes ${n} modifications en attente sont gardées`:"Ta modification en attente est gardée"} sur cet appareil et ${pl(n,"partira","partiront")} après la reconnexion.`:"Tes tâches restent disponibles sur cet appareil."}</div></div></div>`;
+  }else h+=`<h1>Connexion<small>Une seule fois sur cet appareil. La session reste ensuite ouverte.</small></h1>`;
+  h+=`<div id="lgErr"></div><form class="lg-form" id="lgForm" novalidate>`;
+  h+=`<label class="lg-f"><span>Adresse e-mail</span><input id="lgMail" type="email" autocomplete="username" value="${escA(em)}"></label>`;
+  h+=`<label class="lg-f"><span>Mot de passe</span><input id="lgPw" type="password" autocomplete="current-password"></label>`;
+  h+=`<button class="lg-go" id="lgGo" type="submit">${mode==="again"?"Se reconnecter":"Se connecter"}</button>`;
+  if(mode==="again")h+=`<button class="lg-alt" id="lgLater" type="button">Plus tard, continuer sur cet appareil</button>`;
+  h+=`</form>`;
+  if(mode!=="again")h+=`<div class="lg-note">Après connexion, cet appareil affichera les tâches enregistrées en ligne.</div>`;
+  h+=`</div>`;
+  el.innerHTML=h;
+  $("#lgForm").onsubmit=e=>{e.preventDefault();const m=$("#lgMail").value.trim(),p=$("#lgPw").value;if(!m||!p){loginMsg("Indique ton adresse et ton mot de passe.");return}doLogin(m,p,mode)};
+  const lt=$("#lgLater");if(lt)lt.onclick=hideLogin;
+}
+function hideLogin(){if(!loginShown)return;loginShown=false;const el=$("#login");el.classList.add("hid");el.innerHTML="";refreshUI()}
+async function doLogout(){
+  const n=pendingCount();
+  if(n){alert(`Déconnexion impossible pour l'instant : ${n} ${pl(n,"modification n'a","modifications n'ont")} pas encore été ${pl(n,"enregistrée","enregistrées")} en ligne. Réessaie une fois la synchronisation faite.`);return}
+  if(!confirm("Se déconnecter ? Tes tâches seront retirées de cet appareil jusqu'à la prochaine connexion."))return;
+  manualLogout=true;unsubscribeRT();
+  try{await sb.auth.signOut({scope:"local"})}catch(e){}
+  resetLocalData();localStorage.removeItem(K_OWNER);uid=null;token=null;authState="none";manualLogout=false;
+  closeModal();renderTabs();render();showLogin("first");updDot();
+}
+
+/* ============================================================
+   ÉTAT AFFICHÉ : pastille sur le bouton menu et bloc Synchronisation
+   vert : tout est en ligne ; ambre : pas encore en ligne ; rouge : l'app a besoin de toi ; gris : vérification en cours
+   ============================================================ */
+function status(){
+  const n=pendingCount(),mods=`${n} ${pl(n,"modification","modifications")} en attente`;
+  if(authState==="required")return{c:"alert",t:"Connexion requise",s:n?`${n>1?`Tes ${n} modifications en attente sont gardées`:"Ta modification en attente est gardée"} sur cet appareil et ${pl(n,"partira","partiront")} après la reconnexion.`:"Reconnecte-toi pour reprendre la synchronisation.",b:"relogin"};
+  if(conflicts.length)return{c:"alert",t:conflicts.length>1?`${conflicts.length} conflits à trancher`:"Un conflit à trancher",s:"Choisis la version à garder pour reprendre la synchronisation.",b:"conflicts"};
+  if(netState==="offline")return{c:"wait",t:n?mods:"Hors connexion",s:(offlineSince?`Hors connexion depuis ${hm(offlineSince).replace(/^à /,"")}. `:"")+(n?`${pl(n,"Elle est gardée","Elles sont gardées")} sur cet appareil et ${pl(n,"partira","partiront")} d'${pl(n,"elle","elles")}-même${pl(n,"","s")} au retour du réseau.`:(lastSync?`Dernière synchronisation ${hm(lastSync)}.`:"")),b:"retry"};
+  if(authState!=="ok")return{c:"",t:"Vérification en cours…",s:"",b:null};
+  if(n)return{c:"wait",t:mods,s:syncing?"Envoi en cours…":"Envoi dans un instant.",b:syncing?null:"sync"};
+  if(syncing&&!lastSync)return{c:"",t:"Vérification en cours…",s:"",b:null};
+  return{c:"ok",t:"Tout est enregistré en ligne",s:lastSync?`Dernière synchronisation ${hm(lastSync)}`:"",b:syncing?null:"sync"};
+}
+const ICON_SYNC=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>`;
 function updDot(){
-  const d=$("#syncd");if(!d)return;
-  const on=navigator.onLine&&syncing;
-  d.className="syncd "+(on?"on":"off");
-  d.title=on?"Synchronisé":"Hors-ligne";
+  const d=$("#syncd"),s=status();
+  if(d){d.className="syncd "+s.c;d.title=s.t}
+  const mb=$("#menuBtn");if(mb)mb.setAttribute("aria-label","Menu. "+s.t);
+  renderSyncBlk(s);
+}
+function renderSyncBlk(s){
+  const el=$("#syncBlk");if(!el)return;s=s||status();
+  let b="";
+  if(s.b==="sync"||s.b==="retry")b=`<button class="sy-btn" id="syBtn">${ICON_SYNC}${s.b==="retry"?"Réessayer maintenant":"Synchroniser maintenant"}</button>`;
+  else if(s.b==="relogin")b=`<button class="sy-btn" id="syBtn">Se reconnecter</button>`;
+  else if(s.b==="conflicts")b=`<button class="sy-btn" id="syBtn">Voir ${conflicts.length>1?"les conflits":"le conflit"}</button>`;
+  el.innerHTML=`<div class="sy-card"><span class="sy-dot ${s.c}"></span><div><div class="sy-t">${s.t}</div>${s.s?`<div class="sy-s">${s.s}</div>`:""}</div></div>${b}`;
+  const bt=$("#syBtn");
+  if(bt)bt.onclick=()=>{
+    if(s.b==="relogin"){closeModal();showLogin("again")}
+    else if(s.b==="conflicts")closeModal();
+    else if(authState==="ok")syncNow("manuel");
+    else recoverAuth();
+  };
+}
+function refreshUI(){
+  updDot();
+  if(needRender&&!editId&&!isDragging){needRender=false;renderTabs();render();if(sheetId)renderSheet()}
+  maybeShowConflict();
+}
+
+/* ============================================================
+   CONFLITS : une question à la fois, sans fermeture possible sans réponse
+   ============================================================ */
+function maybeShowConflict(){
+  if(!conflicts.length){if(cfOpen){cfOpen=false;closeModal()}return}
+  if(cfOpen){renderConflict();return}
+  if(editId||isDragging||sheetId||loginShown||!$("#modalOv").classList.contains("hid"))return;
+  cfOpen=true;renderConflict();
+}
+function catName(id){const c=CATS.find(x=>x.id===id);return c?c.label:id}
+function descr(vals,fields){
+  let h="";
+  const{title,details}=splitText(vals.text);
+  h+=`<span class="cf-v">${esc(title||"(sans titre)")}</span>`;
+  if(fields.includes("text")&&details)h+=`<span class="cf-m cf-d">${esc(details)}</span>`;
+  for(const f of fields){
+    if(f==="category")h+=`<span class="cf-m">Catégorie : ${esc(catName(vals.category))}</span>`;
+    if(f==="completed")h+=`<span class="cf-m">${vals.completed?"Faite":"À faire"}</span>`;
+    if(f==="deleted")h+=`<span class="cf-m">${vals.deleted?"Dans la corbeille":"Dans la liste"}</span>`;
+    if(f==="color")h+=`<span class="cf-m cf-c">Couleur <i style="background:${vals.color==="#FFFFFF"?"var(--field)":escA(vals.color)}"></i>${vals.color==="#FFFFFF"?" aucune":""}</span>`;
+  }
+  return h;
+}
+const CK=`<span class="cf-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>`;
+function renderConflict(){
+  const c=conflicts[0];if(!c){cfOpen=false;closeModal();return}
+  const key=c.k+":"+c.id;if(cfShown!==key){cfPick=null;cfShown=key}
+  const ov=$("#modalOv");ov.classList.remove("hid");
+  const n=conflicts.length;
+  let h=`<div class="modal-box" role="dialog" aria-modal="true">`;
+  if(n>1)h+=`<div class="cf-n">Conflit 1 sur ${n}</div>`;
+  if(c.k==="fields"){
+    const Sn=nt(c.S),others=FIELDS.some(f=>!c.fields.includes(f)&&!SILENT.includes(f)&&c.L[f]!==Sn[f]);
+    const what=c.fields.length===1&&c.fields[0]==="text"?"Le texte de cette tâche a changé":`Cette tâche a changé (${c.fields.map(f=>FIELD_LBL[f]).join(", ")})`;
+    h+=`<div class="modal-title">Modifiée sur tes deux appareils</div><div class="cf-p">${what} ici et sur ton autre appareil. Choisis la version à garder.${others?" Ses autres changements ont déjà été réunis.":""}</div>`;
+    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Sur cet appareil</span>${descr(c.L,c.fields)}${c.Lt?`<span class="cf-m">Modifié ${hm(c.Lt)}</span>`:""}${CK}</button>`;
+    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Sur l'autre appareil</span>${descr(Sn,c.fields)}<span class="cf-m">Modifié ${hm(Number(c.S.updated_at))}</span>${CK}</button>`;
+    h+=`<button class="cf-go" id="cfGo" ${cfPick?"":"disabled"}>Garder cette version</button>`;
+  }else if(c.k==="cats"){
+    const lab=s=>{try{return JSON.parse(catsStr(s)).map(x=>esc(x.label)).join(" · ")}catch(e){return""}};
+    h+=`<div class="modal-title">Catégories modifiées sur tes deux appareils</div><div class="cf-p">La liste des catégories a changé ici et sur ton autre appareil. Choisis la version à garder.</div>`;
+    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Sur cet appareil</span><span class="cf-v">${lab(c.L)}</span>${CK}</button>`;
+    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Sur l'autre appareil</span><span class="cf-v">${lab(c.S.cats)}</span>${CK}</button>`;
+    h+=`<button class="cf-go" id="cfGo" ${cfPick?"":"disabled"}>Garder cette version</button>`;
+  }else if(c.k==="delRemote"){
+    h+=`<div class="modal-title">Supprimée sur ton autre appareil</div><div class="cf-p">Tu as modifié cette tâche ici pendant qu'elle était supprimée définitivement ailleurs.</div>`;
+    h+=`<div class="cf-opt cf-static"><span class="cf-k">Ta version</span>${descr(c.L,["text"])}</div>`;
+    h+=`<div class="modal-actions"><button class="btn-cancel" data-cfa="drop">Accepter la suppression</button><button class="btn-primary" data-cfa="keep">Garder ma version</button></div>`;
+  }else{
+    h+=`<div class="modal-title">Modifiée sur ton autre appareil</div><div class="cf-p">Tu as supprimé définitivement cette tâche ici pendant qu'elle était modifiée ailleurs.</div>`;
+    h+=`<div class="cf-opt cf-static"><span class="cf-k">Sur l'autre appareil</span>${descr(nt(c.S),["text"])}</div>`;
+    h+=`<div class="modal-actions"><button class="btn-cancel" data-cfa="drop">Confirmer la suppression</button><button class="btn-primary" data-cfa="keep">Garder cette version</button></div>`;
+  }
+  h+=`</div>`;
+  ov.innerHTML=h;
+  ov.querySelectorAll("[data-cfp]").forEach(b=>{b.onclick=()=>{cfPick=b.dataset.cfp;renderConflict()}});
+  const go=$("#cfGo");if(go)go.onclick=()=>{if(cfPick)resolveConflict(c,cfPick)};
+  ov.querySelectorAll("[data-cfa]").forEach(b=>{b.onclick=()=>resolveConflict(c,b.dataset.cfa)});
+}
+function resolveConflict(c,choice){
+  if(c.k==="fields"){
+    const Sn=nt(c.S),src=choice==="here"?c.L:Sn,M={...c.M};
+    for(const f of c.fields)M[f]=src[f];
+    const L=tasks.find(t=>t.id===c.id);
+    if(L)Object.assign(L,M,{updated_at:now()});else tasks.push({id:c.id,...M,created_at:Number(c.S.created_at)||now(),updated_at:now()});
+    base[c.id]=toBase(c.S);
+  }else if(c.k==="cats"){
+    const src=choice==="here"?c.L:catsStr(c.S.cats);
+    CATS=JSON.parse(src);if(!CATS.length)CATS=[...DEFAULT_CATS];saveCatsLocal();
+    if(!CATS.find(x=>x.id===tab)&&tab!=="trash")tab=CATS[0].id;
+    pbase={v:Number(c.S.updated_at),cats:catsStr(c.S.cats),theme:pbase?pbase.theme:null};
+  }else if(c.k==="delRemote"){
+    if(choice==="drop")removeLocal(c.id);
+    delete base[c.id];                                   /* garder : elle sera recréée en ligne */
+  }else{
+    if(choice==="keep")setLocal(toLocal(c.S));
+    base[c.id]=toBase(c.S);                              /* confirmer : suppression envoyée contre la version vue */
+  }
+  conflicts=conflicts.filter(x=>x!==c);cfEpoch++;
+  saveLocal();saveSync();
+  cfOpen=false;cfPick=null;cfShown="";
+  $("#modalOv").classList.add("hid");
+  tasks.sort(byPos);renderTabs();render();
+  if(conflicts.length)maybeShowConflict();
+  syncNow("conflit");
 }
 
 function getList(){
@@ -360,19 +865,19 @@ function addTask(txt){
   const fl=tasks.filter(t=>!t.deleted&&t.category===cat);
   const mx=fl.length>0?Math.max(...fl.map(t=>t.position||0)):0;
   const t={id:mkId(),text:txt,category:cat,completed:false,deleted:false,position:mx+1,color:"#FFFFFF",created_at:now(),updated_at:now(),deleted_at:null};
-  tasks.push(t);saveLocal();syncTask(t);
+  tasks.push(t);touch();
   justAdded=t.id;render();
   setTimeout(()=>{justAdded=null},600);
 }
 function updTask(id,fields){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   Object.assign(t,fields,{updated_at:now()});
-  saveLocal();syncTask(t);render();
+  touch();render();
 }
 function toggleTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   t.completed=!t.completed;t.updated_at=now();
-  saveLocal();syncTask(t);
+  touch();
   justDone=id;render();
   setTimeout(()=>{justDone=null;render()},700);
 }
@@ -381,11 +886,11 @@ function restoreTask(id){if(openId===id)openId=null;updTask(id,{deleted:false,de
 function permDelete(id){
   if(openId===id)openId=null;
   tasks=tasks.filter(t=>t.id!==id);
-  saveLocal();hardDelete(id);render();
+  touch();render();
 }
 function emptyTrash(){
   tasks=tasks.filter(t=>!t.deleted);
-  openId=null;saveLocal();hardDeleteAllTrash();render();
+  openId=null;touch();render();
 }
 
 // ============================================================
@@ -394,7 +899,7 @@ function emptyTrash(){
 function renderAmbBar(){
   const bar=$("#ambs");if(!bar)return;
   bar.innerHTML=AMBS.map(a=>`<button data-a="${a}" class="${a===amb?"on":""}" style="background:${AMB_PREVIEW[a]}"></button>`).join("");
-  bar.querySelectorAll("button").forEach(b=>{b.onclick=()=>{amb=b.dataset.a;applyAmb();syncPrefsRow()}});
+  bar.querySelectorAll("button").forEach(b=>{b.onclick=()=>{amb=b.dataset.a;applyAmb();touch()}});
 }
 
 function renderHeader(){
@@ -524,10 +1029,10 @@ function bindRows(){
     ta.onblur=()=>{
       const v=ta.value.trim();
       editId=null;
-      if(v)updTask(id,{text:v});else render();
+      if(v)updTask(id,{text:v});else{render();scheduleSync(300)}
     };
     ta.onkeydown=e=>{
-      if(e.key==="Escape"){editId=null;render()}
+      if(e.key==="Escape"){editId=null;render();scheduleSync(300)}
       if(e.key==="Enter"&&(e.ctrlKey||e.metaKey))ta.blur();
     };
   });
@@ -632,7 +1137,7 @@ function renderTabs(){
 // ============================================================
 // CATEGORY EDITOR
 // ============================================================
-function closeModal(){$("#modalOv").classList.add("hid")}
+function closeModal(){$("#modalOv").classList.add("hid");menuOpen=false;setTimeout(maybeShowConflict,60)}
 function openCatEditor(catId){
   const existing=catId?CATS.find(c=>c.id===catId):null;
   const idx=existing?CATS.indexOf(existing):-1;
@@ -657,7 +1162,7 @@ function openCatEditor(catId){
     const i=CATS.indexOf(existing);const j=i+dir;
     if(j<0||j>=CATS.length)return;
     [CATS[i],CATS[j]]=[CATS[j],CATS[i]];
-    saveCatsLocal();syncPrefsRow();renderTabs();
+    saveCatsLocal();touch();renderTabs();
     openCatEditor(catId);
   };
   const lb=ov.querySelector("#ceLeft");if(lb)lb.onclick=()=>moveCat(-1);
@@ -666,10 +1171,9 @@ function openCatEditor(catId){
   if(db){db.onclick=()=>{
     if(!confirm(`Supprimer la catégorie "${existing.label}" ? Ses tâches iront dans "${CATS.find(c=>c!==existing).label}".`))return;
     const target=CATS.find(c=>c!==existing).id;
-    tasks.filter(t=>t.category===catId).forEach(t=>{t.category=target;t.updated_at=now();syncTask(t)});
-    saveLocal();
+    tasks.filter(t=>t.category===catId).forEach(t=>{t.category=target;t.updated_at=now()});
     CATS=CATS.filter(c=>c.id!==catId);
-    saveCatsLocal();syncPrefsRow();
+    saveCatsLocal();touch();
     if(tab===catId)tab=CATS[0].id;
     closeModal();renderTabs();render();
   }}
@@ -677,45 +1181,8 @@ function openCatEditor(catId){
     const name=ov.querySelector("#ceName").value.trim();if(!name)return;
     if(existing){existing.label=name;existing.color=selColor}
     else{const nc={id:mkId(),label:name,color:selColor};CATS.push(nc);tab=nc.id}
-    saveCatsLocal();syncPrefsRow();closeModal();renderTabs();render();
+    saveCatsLocal();touch();closeModal();renderTabs();render();
   };
-}
-
-// ============================================================
-// EXPORT / IMPORT + MENU
-// ============================================================
-function exportData(){
-  const data={tasks,cats:CATS};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download="daily-flow-backup.json";
-  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-}
-function importData(file){
-  const reader=new FileReader();
-  reader.onload=async()=>{
-    try{
-      const data=JSON.parse(reader.result);
-      if(!data.tasks||!Array.isArray(data.tasks)){alert("Fichier non reconnu.");return}
-      tasks=data.tasks;saveLocal();
-      if(data.cats&&Array.isArray(data.cats)&&data.cats.length){CATS=data.cats;saveCatsLocal()}
-      if(sb){await pushAll();await syncPrefsRow()}
-      renderTabs();render();
-      alert("Import réussi !");
-    }catch(e){alert("Erreur d'import : "+e.message)}
-  };
-  reader.readAsText(file);
-}
-function openMenu(){
-  const ov=$("#modalOv");ov.classList.remove("hid");
-  let h=`<div class="modal-box"><button class="modal-close" id="menuClose">✕</button><div class="modal-title">Menu</div>`;
-  h+=`<button class="sbtn" id="menuExport" style="margin-bottom:8px">📥 Exporter les données (JSON)</button>`;
-  h+=`<button class="sbtn" id="menuImport">📤 Importer des données</button>`;
-  h+=`</div>`;
-  ov.innerHTML=h;
-  ov.querySelector("#menuClose").onclick=closeModal;
-  ov.querySelector("#menuExport").onclick=()=>{exportData();closeModal()};
-  ov.querySelector("#menuImport").onclick=()=>{closeModal();$("#importFile").click()};
 }
 
 // ============================================================
@@ -743,6 +1210,51 @@ function initInput(){
 }
 
 // ============================================================
+// EXPORT / IMPORT + MENU
+// ============================================================
+function exportData(){
+  const data={tasks,cats:CATS};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="daily-flow-backup.json";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+/* Import : les tâches du fichier sont ajoutées ou remplacent celles de même identifiant ; les autres sont conservées */
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data.tasks||!Array.isArray(data.tasks)){alert("Fichier non reconnu.");return}
+      for(const t of data.tasks){if(t&&t.id)setLocal({id:String(t.id),...nt(t),created_at:Number(t.created_at)||now(),updated_at:now()})}
+      tasks.sort(byPos);
+      if(data.cats&&Array.isArray(data.cats)&&data.cats.length){CATS=JSON.parse(catsStr(data.cats));if(!CATS.length)CATS=[...DEFAULT_CATS];saveCatsLocal();if(!CATS.find(c=>c.id===tab))tab=CATS[0].id}
+      touch();renderTabs();render();
+      alert("Import réussi !");
+    }catch(e){alert("Erreur d'import : "+e.message)}
+  };
+  reader.readAsText(file);
+}
+function openMenu(){
+  const ov=$("#modalOv");ov.classList.remove("hid");menuOpen=true;
+  const em=localStorage.getItem(K_EMAIL)||"";
+  let h=`<div class="modal-box"><button class="modal-close" id="menuClose" aria-label="Fermer">✕</button><div class="modal-title">Menu</div>`;
+  h+=`<div class="sy-lbl">Synchronisation</div><div id="syncBlk"></div>`;
+  h+=`<div class="sy-lbl">Compte</div><div class="sy-acc">${uid&&em?`Connecté avec ${esc(em)}`:"Non connecté"}</div>`;
+  h+=`<button class="sbtn" id="menuLogout">Se déconnecter</button>`;
+  h+=`<div class="sy-lbl">Données</div>`;
+  h+=`<button class="sbtn" id="menuExport" style="margin-bottom:8px">📥 Exporter les données (JSON)</button>`;
+  h+=`<button class="sbtn" id="menuImport">📤 Importer des données</button>`;
+  h+=`</div>`;
+  ov.innerHTML=h;
+  renderSyncBlk();
+  ov.querySelector("#menuClose").onclick=closeModal;
+  ov.querySelector("#menuLogout").onclick=doLogout;
+  ov.querySelector("#menuExport").onclick=()=>{exportData();closeModal()};
+  ov.querySelector("#menuImport").onclick=()=>{closeModal();$("#importFile").click()};
+}
+
+// ============================================================
 // INIT
 // ============================================================
 async function init(){
@@ -752,12 +1264,20 @@ async function init(){
 
   renderTabs();render();initInput();
   $("#shov").onclick=closeSheet;
-  $("#menuBtn").onclick=openMenu;
+  $("#menuBtn").onclick=()=>{if(!cfOpen)openMenu()};
   $("#ambDot").onclick=()=>$("#ambs").classList.toggle("open");
   $("#importFile").onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value=""};
 
-  window.addEventListener("online",()=>{updDot();if(syncing)pushAll()});
-  window.addEventListener("offline",updDot);
+  /* Relances de la synchro : retour du réseau, retour au premier plan, page restaurée depuis le cache */
+  window.addEventListener("online",()=>{if(authState==="ok")syncNow("reseau");else recoverAuth()});
+  window.addEventListener("offline",()=>netFail());
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="hidden")flushOnHide();
+    else if(authState==="ok")syncNow("premier-plan");
+    else recoverAuth();
+  });
+  window.addEventListener("pagehide",flushOnHide);
+  window.addEventListener("pageshow",e=>{if(e.persisted){if(authState==="ok")syncNow("cache");else recoverAuth()}});
 
   document.addEventListener("pointermove",ev=>{
     if(!dragId)return;ev.preventDefault();
@@ -771,7 +1291,7 @@ async function init(){
       else if(ev.clientY>mid&&c.compareDocumentPosition(dragRow)&Node.DOCUMENT_POSITION_PRECEDING){tl.insertBefore(dragRow,c.nextSibling);break}
     }
   });
-  document.addEventListener("pointerup",async()=>{
+  document.addEventListener("pointerup",()=>{
     if(!dragId)return;
     const tl=$("#tl");
     const dragRow=tl?tl.querySelector(`[data-tid="${dragId}"]`):null;
@@ -779,20 +1299,19 @@ async function init(){
     if(tl){
       const newOrder=[...tl.querySelectorAll(".row")].map(c=>c.dataset.tid);
       const taskMap=new Map(tasks.map(t=>[t.id,t]));
-      newOrder.forEach((id,i)=>{const t=taskMap.get(id);if(t){t.position=i;t.updated_at=now()}});
-      tasks.sort((a,b)=>(a.position||0)-(b.position||0));
+      newOrder.forEach((id,i)=>{const t=taskMap.get(id);if(t&&t.position!==i){t.position=i;t.updated_at=now()}});
+      tasks.sort(byPos);
     }
-    dragId=null;saveLocal();
-    if(sb){try{await sb.from("tasks").upsert(tasks.map(t=>taskRow(t)),{onConflict:"id"})}catch(e){console.warn(e)}}
-    setTimeout(()=>{isDragging=false},1500);
+    dragId=null;touch();                                   /* seules les tâches déplacées partiront */
+    setTimeout(()=>{isDragging=false;refreshUI()},1500);
   });
 
   $("#LS").classList.add("h");
   $("#app").style.display="block";
   setTimeout(()=>{const ls=$("#LS");if(ls)ls.remove()},400);
 
-  await initSync();
-  updDot();render();
+  updDot();
+  await initAuth();
 }
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);
