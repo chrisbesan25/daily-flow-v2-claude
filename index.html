@@ -262,7 +262,8 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
 </svg>
 <script type="module">
-import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+/* Version de la bibliothèque figée : celle en service pendant les tests réels du 23 septembre 2026. À changer volontairement, après essai. */
+import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/+esm";
 
 const SB_URL="https://lqcwmnrvusdfutfwqtul.supabase.co";
 /* Clé publique du projet : elle est faite pour être exposée. L'accès aux données
