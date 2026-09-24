@@ -15,6 +15,7 @@
 - Aucun tiret cadratin : rechercher et éliminer les caractères U+2014, U+2013 et U+2212 avant livraison, y compris dans les commentaires.
 - Tests réels guidés pas à pas sur les deux appareils de Christophe (PC et téléphone Android), avec vérification dans les journaux Supabase quand c'est possible.
 - Ne jamais présenter comme vérifié ce qui ne l'a pas été. Signaler les limites.
+- Dépôt modifié en dehors de la session : au début de chaque nouvelle demande de Christophe, lancer `git fetch origin main` et comparer avec la version sur laquelle la session travaille. Si main a avancé (par exemple un fichier déposé par Christophe sur GitHub), le dire avant toute autre chose, et proposer de mettre à jour la branche de travail avant de lire ou de modifier quoi que ce soit. Une session travaille sur la copie faite à son ouverture : sans cette vérification, elle lit des fichiers périmés.
 
 ## L'app
 
