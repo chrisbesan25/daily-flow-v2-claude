@@ -33,10 +33,9 @@
 - Le temps réel est un simple signal de relecture. Les suppressions arrivent par un abonnement sans filtre.
 - Relectures : ouverture, retour au premier plan, focus de la fenêtre (une par tranche de 2 secondes), retour du réseau, page restaurée, reconnexion du canal, et relecture légère (identifiants et versions) toutes les 30 secondes quand la page est visible.
 - L'événement storage est un signal de relecture du serveur, jamais une recopie de l'état d'un autre onglet. Il est filtré sur les clés exactes. Déconnexion et connexion se propagent aux autres onglets.
-- Double modification : fusion par champ ; question seulement si le même champ a deux valeurs différentes. La version en ligne l'emporte sans question pour l'ordre (position), la date de mise en corbeille et l'ambiance.
+- Double modification : fusion par champ ; question seulement si le même champ a deux valeurs différentes. La version en ligne l'emporte sans question pour trois champs seulement : l'ordre (position), la date de mise en corbeille (deleted_at) et l'ambiance (theme). Le fait d'être ou non à la corbeille (deleted) suit la règle générale : question si les deux côtés divergent.
 - Textes des questions de conflit validés le 24 septembre 2026 (« Modifiée à deux endroits », « Ici », « Ailleurs », conséquence de chaque réponse). Ne pas les changer sans validation.
 - Saisie en cours : seulement si quelque chose a été tapé dans la zone d'édition. Une zone simplement ouverte n'empêche pas le rafraîchissement.
-- Réponse tardive testée le 24 septembre : aucun recul, grâce aux décisions prises en mémoire.
 
 ## Base de données
 
@@ -48,6 +47,14 @@
 
 - Si une version change les clés de stockage : fermer tous les onglets sauf un sur chaque appareil avant de déployer.
 - Après dépôt, GitHub Pages met quelques minutes à publier ; recharger en forçant sur le PC, fermer et rouvrir l'app sur le téléphone.
+
+## Déjà vérifié : ne pas refaire
+
+Recommandations du second complément du 24 septembre, traitées le jour même :
+- Réponse tardive : testée au banc, aucun recul ni en ligne ni dans le stockage, grâce aux décisions prises en mémoire par chaque onglet. Le bloc 2 de Budget n'est pas à porter.
+- Questions de conflit : textes alignés et déployés (bloc 3 de Budget).
+- Champ touché pendant un réaffichage : risque jugé faible (au pire un appui perdu, jamais une donnée), non porté.
+- Fermeture des autres onglets au déploiement : règle retenue (voir Déploiement).
 
 ## En attente
 
