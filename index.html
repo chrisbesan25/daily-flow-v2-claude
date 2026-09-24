@@ -929,23 +929,23 @@ function renderConflict(){
   if(c.k==="fields"){
     const Sn=nt(c.S),others=FIELDS.some(f=>!c.fields.includes(f)&&!SILENT.includes(f)&&c.L[f]!==Sn[f]);
     const what=c.fields.length===1&&c.fields[0]==="text"?"Le texte de cette tâche a changé":`Cette tâche a changé (${c.fields.map(f=>FIELD_LBL[f]).join(", ")})`;
-    h+=`<div class="modal-title">Modifiée sur tes deux appareils</div><div class="cf-p">${what} ici et sur ton autre appareil. Choisis la version à garder.${others?" Ses autres changements ont déjà été réunis.":""}</div>`;
-    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Sur cet appareil</span>${descr(c.L,c.fields)}${c.Lt?`<span class="cf-m">Modifié ${hm(c.Lt)}</span>`:""}${CK}</button>`;
-    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Sur l'autre appareil</span>${descr(Sn,c.fields)}<span class="cf-m">Modifié ${hm(Number(c.S.updated_at))}</span>${CK}</button>`;
+    h+=`<div class="modal-title">Modifiée à deux endroits</div><div class="cf-p">${what} ici et ailleurs, dans un autre onglet ou sur ton autre appareil. Choisis la version à garder : l'autre sera remplacée partout.${others?" Ses autres changements ont déjà été réunis.":""}</div>`;
+    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Ici</span>${descr(c.L,c.fields)}${c.Lt?`<span class="cf-m">Modifié ${hm(c.Lt)}</span>`:""}${CK}</button>`;
+    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Ailleurs</span>${descr(Sn,c.fields)}<span class="cf-m">Modifié ${hm(Number(c.S.updated_at))}</span>${CK}</button>`;
     h+=`<button class="cf-go" id="cfGo" ${cfPick?"":"disabled"}>Garder cette version</button>`;
   }else if(c.k==="cats"){
     const lab=s=>{try{return JSON.parse(catsStr(s)).map(x=>esc(x.label)).join(" · ")}catch(e){return""}};
-    h+=`<div class="modal-title">Catégories modifiées sur tes deux appareils</div><div class="cf-p">La liste des catégories a changé ici et sur ton autre appareil. Choisis la version à garder.</div>`;
-    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Sur cet appareil</span><span class="cf-v">${lab(c.L)}</span>${CK}</button>`;
-    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Sur l'autre appareil</span><span class="cf-v">${lab(c.S.cats)}</span>${CK}</button>`;
+    h+=`<div class="modal-title">Catégories modifiées à deux endroits</div><div class="cf-p">La liste des catégories a changé ici et ailleurs, dans un autre onglet ou sur ton autre appareil. Choisis la version à garder : l'autre sera remplacée partout.</div>`;
+    h+=`<button class="cf-opt${cfPick==="here"?" sel":""}" data-cfp="here"><span class="cf-k">Ici</span><span class="cf-v">${lab(c.L)}</span>${CK}</button>`;
+    h+=`<button class="cf-opt${cfPick==="there"?" sel":""}" data-cfp="there"><span class="cf-k">Ailleurs</span><span class="cf-v">${lab(c.S.cats)}</span>${CK}</button>`;
     h+=`<button class="cf-go" id="cfGo" ${cfPick?"":"disabled"}>Garder cette version</button>`;
   }else if(c.k==="delRemote"){
-    h+=`<div class="modal-title">Supprimée sur ton autre appareil</div><div class="cf-p">Tu as modifié cette tâche ici pendant qu'elle était supprimée définitivement ailleurs.</div>`;
+    h+=`<div class="modal-title">Supprimée ailleurs</div><div class="cf-p">Tu as modifié cette tâche ici pendant qu'elle était supprimée définitivement ailleurs, dans un autre onglet ou sur ton autre appareil. Accepter la suppression : ta modification est perdue. Garder ma version : la tâche est recréée partout, avec ta modification.</div>`;
     h+=`<div class="cf-opt cf-static"><span class="cf-k">Ta version</span>${descr(c.L,["text"])}</div>`;
     h+=`<div class="modal-actions"><button class="btn-cancel" data-cfa="drop">Accepter la suppression</button><button class="btn-primary" data-cfa="keep">Garder ma version</button></div>`;
   }else{
-    h+=`<div class="modal-title">Modifiée sur ton autre appareil</div><div class="cf-p">Tu as supprimé définitivement cette tâche ici pendant qu'elle était modifiée ailleurs.</div>`;
-    h+=`<div class="cf-opt cf-static"><span class="cf-k">Sur l'autre appareil</span>${descr(nt(c.S),["text"])}</div>`;
+    h+=`<div class="modal-title">Modifiée ailleurs</div><div class="cf-p">Tu as supprimé définitivement cette tâche ici pendant qu'elle était modifiée ailleurs, dans un autre onglet ou sur ton autre appareil. Confirmer la suppression : la modification faite ailleurs est perdue. Garder cette version : la tâche est conservée partout, avec cette modification.</div>`;
+    h+=`<div class="cf-opt cf-static"><span class="cf-k">Ailleurs</span>${descr(nt(c.S),["text"])}</div>`;
     h+=`<div class="modal-actions"><button class="btn-cancel" data-cfa="drop">Confirmer la suppression</button><button class="btn-primary" data-cfa="keep">Garder cette version</button></div>`;
   }
   h+=`</div>`;
