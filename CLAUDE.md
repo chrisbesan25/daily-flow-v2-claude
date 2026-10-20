@@ -59,7 +59,7 @@
   - tâche ajoutée hors ligne (« 1 modification en attente ») puis envoyée au retour du réseau ;
   - deux inscriptions distinctes dans chrome://serviceworker-internals.
 - Vérifié au banc, pas en réel : jeton Supabase expiré hors ligne (l'app s'ouvre, le jeton est rafraîchi au retour du réseau) ; mise à jour pendant que jsdelivr est injoignable ; coupure en pleine installation.
-- Mise à jour réelle (VERSION passée à v2) : à vérifier, voir « En attente ».
+- Mise à jour réelle vérifiée le 20 octobre 2026 sur le PC et le téléphone : passage de VERSION à v2, cache daily-flow-v3-sw-v2 complet à la place de v1, démarrage sans réseau avec les tâches, cache de Budget intact.
 - Limites connues :
   - premier lancement sans réseau non couvert : l'app doit avoir été ouverte une fois en ligne après chaque installation (sur réseau mobile, la laisser ouverte une vingtaine de secondes) ;
   - une adresse sans barre finale ne s'ouvre pas hors ligne : favoris et icônes doivent finir par /daily-flow-v2-claude/ (vérifié le 20 octobre 2026) ;
@@ -83,7 +83,7 @@
   - une modification de sw.js change toujours VERSION ; une modification de la seule page n'en a pas besoin ;
   - après un dépôt, ouvrir l'app en ligne, avec un bon réseau, sur chaque appareil, et vérifier que la nouvelle version est affichée avant toute saisie ;
   - une version qui change les clés ou le format des données doit savoir lire l'ancien format : une ancienne page peut encore tourner hors ligne ;
-  - avant de supprimer ou de renommer le dépôt : désactiver d'abord (voir « Désactivation ») et ouvrir l'app en ligne sur chaque appareil.
+  - avant de supprimer, de renommer le dépôt ou de le passer en privé (ce qui arrête GitHub Pages sur le plan gratuit) : désactiver d'abord (voir « Désactivation ») et ouvrir l'app en ligne sur chaque appareil, sinon l'ancienne copie reste servie sans fin.
 
 ## Déjà vérifié : ne pas refaire
 
@@ -95,7 +95,8 @@ Recommandations du second complément du 24 septembre, traitées le jour même :
 
 ## En attente
 
-- Mise à jour réelle du service worker : VERSION passée à v2 le 20 octobre 2026 pour l'essayer ; à vérifier sur le PC et le téléphone (cache daily-flow-v3-sw-v2 complet à la place de v1, tâches intactes, cache de Budget intact), puis à noter dans « Démarrage hors connexion ».
+- Démarrage hors connexion : chantier clos le 20 octobre 2026, rien en attente.
+- À décider plus tard : hors ligne, « Dernière synchronisation » peut afficher une heure ancienne (voir « Limites connues »).
 
 ## Documents de référence (dossier docs)
 
