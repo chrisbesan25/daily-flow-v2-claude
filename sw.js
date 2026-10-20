@@ -7,7 +7,7 @@
 // Site partagé avec Budget perso : ce fichier ne crée et ne supprime que des caches « daily-flow-v3-sw-* ».
 // Mise à jour : changer VERSION ; l'activation efface alors les anciens caches de Daily Flow seulement.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const PREFIXE = 'daily-flow-v3-sw-';
 const CACHE = PREFIXE + VERSION;
 const PORTEE = self.registration.scope;              // https://chrisbesan25.github.io/daily-flow-v2-claude/
