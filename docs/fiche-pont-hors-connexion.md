@@ -30,10 +30,14 @@ Chaque service worker ne crée et ne supprime que ses propres caches ; aucun cod
 - Toute modification de `sw.js` change `VERSION`. Après un dépôt, ouvrir chaque app en ligne, avec un bon réseau, sur chaque appareil, avant toute saisie.
 - Une version qui change les clés ou le format des données doit savoir lire l'ancien format.
 - Ne jamais « Effacer les données du site » pour chrisbesan25.github.io : cela efface tout, pour les deux apps.
-- Avant de supprimer ou de renommer un dépôt : le désactiver d'abord.
+- Avant de supprimer, de renommer un dépôt ou de le passer en privé (ce qui arrête GitHub Pages sur le plan gratuit) : désactiver d'abord le service worker de l'app et l'ouvrir en ligne sur chaque appareil, sinon l'ancienne copie reste servie sans fin.
 
-## Ouvert au 20 octobre 2026
+## État au 20 octobre 2026 : chantier clos
 
-- Essai réel d'une mise à jour (`VERSION` passée à `v2` dans les deux `sw.js`) : à vérifier puis à noter dans les deux CLAUDE.md.
+- Mise à jour réelle vérifiée sur le PC et le téléphone : `VERSION` passée à `v2` dans les deux `sw.js`, caches `-v2` à la place des `-v1`, données intactes, aucune app n'a touché au cache de l'autre.
+- Contrôle de tout l'historique des deux dépôts (20 octobre 2026) : aucune clé secrète, aucun mot de passe, aucune donnée personnelle sensible ; seules la clé publique Supabase (actuelle et ancienne « anon ») et des mentions du prénom figurent, publiques par conception ou faiblement personnelles.
+
+## Restent notés, hors périmètre
+
 - Daily Flow, hors ligne : « Dernière synchronisation » peut afficher une heure ancienne (comportement antérieur, sans enjeu pour les données) ; correction possible plus tard, à décider.
 - Refus 409 de GitHub avec deux onglets Budget au retour du réseau : rattrapé sans perte, antérieur au chantier, hors périmètre.
