@@ -99,6 +99,16 @@ Recommandations du second complément du 24 septembre, traitées le jour même :
 - Démarrage hors connexion : chantier clos le 20 octobre 2026, rien en attente.
 - À décider plus tard : hors ligne, « Dernière synchronisation » peut afficher une heure ancienne (voir « Limites connues »).
 
+Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data.
+- R1 (P1, Christophe) : mot de passe du compte Daily Flow long, propre à ce service et rangé dans un gestionnaire (offre gratuite de Supabase : pas de protection contre les mots de passe divulgués, pas de lien « mot de passe oublié »).
+- R3 (P2) : procédure de secours pour le mot de passe, à écrire et tester (réinitialisation depuis le tableau de bord Supabase, ou lien « mot de passe oublié » dans l'app).
+- R7 (P3) : retirer aux rôles anon et authenticated le droit d'exécuter la fonction rls_auto_enable, par migration sur feu vert de Christophe, puis contrôle sur une table d'essai.
+- R8 (P3) : surveiller les versions de supabase-js ; rester en 2.117.0, toute montée de version volontaire, après banc et test réel (et BIBLIO dans sw.js, voir « L'app »).
+- R9 (P3) : voir une fois en réel les textes de conflit (même texte modifié des deux côtés, téléphone en mode avion).
+- R10 (P3) : trancher sur deux contrastes de l'ambiance ivoire (onglets inactifs 2,58, onglet Perso actif 2,87, sous le seuil de 3), charte figée en attendant.
+- R11 (P3) : délai de grâce après un appui (bloc 4 de Budget), seulement si un appui perdu est constaté en usage.
+- R12 (P3) : nettoyage de la base (colonnes héritées vides de tasks, table notes vide, index inutilisés), sans urgence et rien sans décision.
+
 ## Documents de référence (dossier docs)
 
 - fiche-portage-synchro-daily-flow.md : logique de synchronisation validée sur Budget perso, 22 septembre 2026.
