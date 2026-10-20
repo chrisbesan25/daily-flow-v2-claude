@@ -29,7 +29,7 @@ Chaque service worker ne crée et ne supprime que ses propres caches ; aucun cod
 - Premier lancement sans réseau impossible : ouvrir l'app une fois en ligne après chaque installation.
 - Toute modification de `sw.js` change `VERSION`. Après un dépôt, ouvrir chaque app en ligne, avec un bon réseau, sur chaque appareil, avant toute saisie.
 - Une version qui change les clés ou le format des données doit savoir lire l'ancien format.
-- Ne jamais « Effacer les données du site » pour chrisbesan25.github.io : cela efface tout, pour les deux apps.
+- Ne jamais « Effacer les données du site » pour désactiver un service worker : cela efface tout, pour les deux apps. Un nettoyage complet du navigateur reste possible : avant, vérifier que tout est envoyé dans les deux apps ; après, rouvrir chaque app une fois en ligne et ressaisir les codes.
 - Avant de supprimer, de renommer un dépôt ou de le passer en privé (ce qui arrête GitHub Pages sur le plan gratuit) : désactiver d'abord le service worker de l'app et l'ouvrir en ligne sur chaque appareil, sinon l'ancienne copie reste servie sans fin.
 
 ## État au 20 octobre 2026 : chantier clos
