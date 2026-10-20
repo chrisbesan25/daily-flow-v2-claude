@@ -261,6 +261,25 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></symbol>
 <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
 </svg>
+<script>
+/* Démarrage hors connexion (20/10/2026) : service worker sw.js, limité au dossier de l'app. Script classique placé
+   avant le module : il s'exécute même si la bibliothèque supabase-js ne se charge pas.
+   Désactivation : SW_ACTIF=false ; la page retire alors SON service worker et SES caches (préfixe daily-flow-v3-sw-),
+   sans toucher à Budget perso, qui partage le même site. */
+(function(){
+  var SW_ACTIF=true;
+  if(!("serviceWorker" in navigator))return;
+  window.addEventListener("load",async()=>{
+    try{
+      if(SW_ACTIF){await navigator.serviceWorker.register("./sw.js",{scope:"./"});return}
+      const portee=new URL("./",location.href).href;
+      const reg=await navigator.serviceWorker.getRegistration(portee);
+      if(reg&&reg.scope===portee)await reg.unregister();
+      for(const k of await caches.keys())if(k.startsWith("daily-flow-v3-sw-"))await caches.delete(k);
+    }catch(e){console.error("sw:",e)}
+  });
+})();
+</script>
 <script type="module">
 /* Version de la bibliothèque figée : celle en service pendant les tests réels du 23 septembre 2026. À changer volontairement, après essai. */
 import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/+esm";
