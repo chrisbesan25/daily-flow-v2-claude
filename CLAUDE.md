@@ -73,7 +73,8 @@
 3. Sur un seul appareil, sans dépôt :
    - PC : F12, Appli, Service workers, « Unregister » sur la portée /daily-flow-v2-claude/, puis Espace de stockage du cache : supprimer seulement daily-flow-v3-sw-*.
    - Android : chrome://serviceworker-internals (page disponible, vérifié le 20 octobre 2026), « Unregister » sur la ligne dont la portée est /daily-flow-v2-claude/ seulement.
-- Ne jamais utiliser « Effacer les données du site » ni « Effacer et réinitialiser » pour chrisbesan25.github.io : cela efface aussi les modifications en attente, la session et toutes les données locales de Budget, dont son code d'accès. Avant toute manipulation, attendre « Tout est enregistré en ligne ».
+- Ne jamais utiliser « Effacer les données du site » ni « Effacer et réinitialiser » pour désactiver le service worker (utiliser les trois moyens ci-dessus) : cela efface aussi les modifications en attente, la session et toutes les données locales de Budget, dont son code d'accès.
+- Nettoyage complet du navigateur (habitude de Christophe, cookies compris) : possible. Avant, vérifier « Tout est enregistré en ligne » ici et aucune modification en attente dans Budget ; après, rouvrir chaque app une fois en ligne et ressaisir les codes, ce qui remet en place le démarrage hors connexion. L'exception « toujours autoriser les cookies » de Chrome ne protège pas d'un nettoyage manuel (règle convenue le 20 octobre 2026).
 
 ## Déploiement
 
