@@ -221,6 +221,9 @@ h1 small{display:block;font-size:15px;font-weight:500;font-family:var(--fb);colo
 .lg-go:disabled{opacity:.6;cursor:default}
 .lg-alt{width:100%;min-height:50px;padding:14px;border-radius:16px;border:none;background:var(--chip);color:var(--ink);font-family:var(--fd);font-weight:700;font-size:14px;cursor:pointer}
 .lg-note{font-size:13.5px;color:var(--ink2);line-height:1.5}
+/* Lien discret (mot de passe oublié, retour) : ink2 sur paper, contraste de 5,09 (galet) à 7,13 (encre), au-dessus de 4,5 dans les neuf ambiances */
+.lg-link{align-self:center;min-height:44px;padding:10px 12px;border:none;background:0;color:var(--ink2);font-family:var(--fb);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.lg-link:disabled{opacity:.6;cursor:default}
 </style>
 </head>
 <body data-amb="galet">
@@ -344,6 +347,7 @@ let lastSync=null;
 let conflicts=[];
 let syncing=false,syncAgain=false,syncTimer=null,runP=null;
 let needRender=false,channels=[],manualLogout=false,loginShown=false,menuOpen=false;
+let pw=null;   /* écran mot de passe ouvert : {from:"first"|"again"|"menu",email,ok (code vérifié),done} */
 let cfOpen=false,cfPick=null,cfShown="",cfEpoch=0;
 
 const FIELDS=["text","category","completed","deleted","position","color","deleted_at"];
@@ -779,7 +783,7 @@ function flushOnHide(){
    ============================================================ */
 function setAuthRequired(){if(authState==="required")return;authState="required";stopPoll();unsubscribeRT();updDot()}
 function startSession(s){
-  if(!s||!s.user)return;
+  if(!s||!s.user||pw)return;                             /* écran mot de passe ouvert : la session démarre seulement après « Continuer » */
   const id=s.user.id,owner=localStorage.getItem(K_OWNER);
   token=s.access_token;
   if(owner&&owner!==id)resetLocalData();                 /* autre compte : on repart de zéro sur cet appareil */
@@ -843,14 +847,115 @@ function showLogin(mode){
   h+=`<label class="lg-f"><span>Mot de passe</span><input id="lgPw" type="password" autocomplete="current-password"></label>`;
   h+=`<button class="lg-go" id="lgGo" type="submit">${mode==="again"?"Se reconnecter":"Se connecter"}</button>`;
   if(mode==="again")h+=`<button class="lg-alt" id="lgLater" type="button">Plus tard, continuer sur cet appareil</button>`;
+  h+=`<button class="lg-link" id="lgForgot" type="button">Mot de passe oublié ?</button>`;
   h+=`</form>`;
   if(mode!=="again")h+=`<div class="lg-note">Après connexion, cet appareil affichera les tâches enregistrées en ligne.</div>`;
   h+=`</div>`;
   el.innerHTML=h;
   $("#lgForm").onsubmit=e=>{e.preventDefault();const m=$("#lgMail").value.trim(),p=$("#lgPw").value;if(!m||!p){loginMsg("Indique ton adresse et ton mot de passe.");return}doLogin(m,p,mode)};
   const lt=$("#lgLater");if(lt)lt.onclick=hideLogin;
+  $("#lgForgot").onclick=()=>{const m=$("#lgMail").value.trim();if(!m){loginMsg("Indique d'abord ton adresse e-mail.");return}pwStart(m,mode)};
 }
 function hideLogin(){if(!loginShown)return;loginShown=false;const el=$("#login");el.classList.add("hid");el.innerHTML="";refreshUI()}
+
+/* ============================================================
+   MOT DE PASSE OUBLIÉ OU CHANGÉ
+   Supabase envoie un code par e-mail (modèle « Reset password » avec {{ .Token }}).
+   Le code ouvre une session de récupération, puis le nouveau mot de passe est enregistré.
+   Le serveur ferme alors les sessions des autres appareils : ils affichent « Reconnexion ».
+   ============================================================ */
+const PW_MIN=12;
+function pwMsg(e,fb){
+  if(isNetErr(e))return"Pas de réseau pour l'instant. Réessaie dans un moment.";
+  const c=e&&e.code||"";
+  if(e&&e.status===429||/rate_limit/.test(c))return"Trop de demandes. Réessaie dans une heure.";
+  if(c==="same_password")return"Choisis un mot de passe différent de l'ancien.";
+  if(c==="weak_password")return"Mot de passe jugé trop faible par le serveur. Choisis-en un plus long ou plus varié.";
+  return fb;
+}
+function pwErr(m){loginMsg(m);if(m){const el=$("#login");if(el)el.scrollTop=0}}
+async function pwSend(email){
+  try{const{error}=await sb.auth.resetPasswordForEmail(email);return error?pwMsg(error,"Envoi du code impossible : "+(error.message||"erreur inconnue")):""}
+  catch(e){return pwMsg(e,"Envoi du code impossible : "+(e.message||"erreur inconnue"))}
+}
+async function pwStart(email,from){
+  const b=$("#lgForgot");if(b){b.disabled=true;b.textContent="Envoi du code…"}
+  loginMsg("");
+  const m=await pwSend(email);
+  if(m){const b2=$("#lgForgot");if(b2){b2.disabled=false;b2.textContent="Mot de passe oublié ?"}loginMsg(m);return}
+  pw={from,email,ok:false,done:false};showPw();
+}
+async function pwFromMenu(){
+  const em=localStorage.getItem(K_EMAIL)||"";if(!em)return;
+  if(!confirm("Recevoir par e-mail un code pour changer ton mot de passe ?"))return;
+  closeModal();
+  const m=await pwSend(em);
+  if(m){alert(m);return}
+  pw={from:"menu",email:em,ok:false,done:false};showPw();
+}
+function showPw(){
+  loginShown=true;const el=$("#login");el.classList.remove("hid");el.scrollTop=0;
+  let h=`<div class="lg-in"><div class="lg-mark">DAILY FLOW</div>`;
+  if(pw.done){
+    h+=`<h1>Mot de passe changé</h1><div class="sy-card"><span class="sy-dot ok"></span><div><div class="sy-t">Ton nouveau mot de passe est enregistré</div><div class="sy-s">Tes autres appareils te demanderont de te reconnecter. Leurs modifications en attente sont gardées et partiront après la reconnexion.</div></div></div>`;
+    h+=`<button class="lg-go" id="pwDone" type="button">Continuer</button></div>`;
+    el.innerHTML=h;$("#pwDone").onclick=pwFinish;return;
+  }
+  h+=`<h1>Nouveau mot de passe<small id="pwSub">Un code vient d'être envoyé à ton adresse e-mail. Il n'est valable qu'un temps limité.</small></h1>`;
+  h+=`<div id="lgErr"></div><form class="lg-form" id="pwForm" novalidate>`;
+  h+=`<input type="email" autocomplete="username" value="${escA(pw.email)}" readonly hidden>`;   /* pour que le gestionnaire de mots de passe range le nouveau sous la bonne adresse */
+  h+=`<label class="lg-f" id="pwCodeF"><span>Code reçu par e-mail</span><input id="pwCode" inputmode="numeric" autocomplete="one-time-code" maxlength="12"></label>`;
+  h+=`<label class="lg-f"><span>Nouveau mot de passe</span><input id="pwNew" type="password" autocomplete="new-password"></label>`;
+  h+=`<div class="lg-note" style="margin-top:-6px">Au moins ${PW_MIN} caractères.</div>`;
+  h+=`<label class="lg-f"><span>Confirme le mot de passe</span><input id="pwNew2" type="password" autocomplete="new-password"></label>`;
+  h+=`<button class="lg-go" id="pwGo" type="submit">Enregistrer le nouveau mot de passe</button>`;
+  h+=`<button class="lg-alt" id="pwResend" type="button">Renvoyer un code</button>`;
+  h+=`<button class="lg-link" id="pwBack" type="button">${pw.from==="menu"?"Annuler":"Retour à la connexion"}</button>`;
+  h+=`</form></div>`;
+  el.innerHTML=h;
+  $("#pwForm").onsubmit=e=>{e.preventDefault();pwSubmit()};
+  $("#pwResend").onclick=pwResend;
+  $("#pwBack").onclick=pwCancel;
+}
+async function pwResend(){
+  const b=$("#pwResend");if(!b||b.disabled)return;
+  b.disabled=true;b.textContent="Envoi du code…";loginMsg("");
+  const m=await pwSend(pw.email);
+  const b2=$("#pwResend");if(b2){b2.disabled=false;b2.textContent="Renvoyer un code"}
+  if(m)pwErr(m);else{const s=$("#pwSub");if(s)s.textContent="Un nouveau code vient d'être envoyé à ton adresse e-mail. Seul le dernier reçu est valable."}
+}
+async function pwSubmit(){
+  const go=$("#pwGo");if(!pw||!go||go.disabled)return;
+  const code=pw.ok?"":$("#pwCode").value.replace(/\s/g,""),p1=$("#pwNew").value,p2=$("#pwNew2").value;
+  if(!pw.ok&&!/^\d{6,10}$/.test(code)){pwErr("Indique le code reçu par e-mail.");return}
+  if(p1.length<PW_MIN){pwErr(`Le mot de passe doit faire au moins ${PW_MIN} caractères.`);return}
+  if(p1!==p2){pwErr("Les deux mots de passe ne sont pas identiques.");return}
+  go.disabled=true;go.textContent="Enregistrement…";loginMsg("");
+  try{
+    if(!pw.ok){
+      const{data,error}=await sb.auth.verifyOtp({email:pw.email,token:code,type:"recovery"});
+      if(error||!data||!data.session){pwErr(pwMsg(error,"Code incorrect ou expiré. Demande un nouveau code."));return}
+      pw.ok=true;                                           /* code consommé : il n'est plus redemandé */
+      const f=$("#pwCodeF");if(f)f.remove();const r=$("#pwResend");if(r)r.remove();
+      const s=$("#pwSub");if(s)s.textContent="Code vérifié. Il reste à enregistrer le nouveau mot de passe.";
+    }
+    const{error}=await sb.auth.updateUser({password:p1});
+    if(error){pwErr(pwMsg(error,"Mot de passe refusé : "+(error.message||"erreur inconnue")));return}
+    pw.done=true;showPw();
+  }catch(e){pwErr(pwMsg(e,"Erreur : "+(e.message||"inconnue")))}
+  finally{const g=$("#pwGo");if(g){g.disabled=false;g.textContent="Enregistrer le nouveau mot de passe"}}
+}
+function pwCancel(){
+  const from=pw.from;pw=null;
+  if(from==="menu")hideLogin();else showLogin(from);
+}
+async function pwFinish(){
+  const from=pw.from;pw=null;
+  let s=null;try{const r=await sb.auth.getSession();s=r.data&&r.data.session}catch(e){}
+  if(s)startSession(s);
+  else if(from==="menu")hideLogin();
+  else showLogin(from);
+}
 async function doLogout(){
   const n=pendingCount();
   if(n){alert(`Déconnexion impossible pour l'instant : ${n} ${pl(n,"modification n'a","modifications n'ont")} pas encore été ${pl(n,"enregistrée","enregistrées")} en ligne. Réessaie une fois la synchronisation faite.`);return}
@@ -1387,6 +1492,7 @@ function openMenu(){
   let h=`<div class="modal-box"><button class="modal-close" id="menuClose" aria-label="Fermer">✕</button><div class="modal-title">Menu</div>`;
   h+=`<div class="sy-lbl">Synchronisation</div><div id="syncBlk"></div>`;
   h+=`<div class="sy-lbl">Compte</div><div class="sy-acc">${uid&&em?`Connecté avec ${esc(em)}`:"Non connecté"}</div>`;
+  if(uid&&em)h+=`<button class="sbtn" id="menuPw" style="margin-bottom:8px">Changer le mot de passe</button>`;
   h+=`<button class="sbtn" id="menuLogout">Se déconnecter</button>`;
   h+=`<div class="sy-lbl">Données</div>`;
   h+=`<button class="sbtn" id="menuExport" style="margin-bottom:8px">📥 Exporter les données (JSON)</button>`;
@@ -1396,6 +1502,7 @@ function openMenu(){
   renderSyncBlk();
   ov.querySelector("#menuClose").onclick=closeModal;
   ov.querySelector("#menuLogout").onclick=doLogout;
+  const mp=ov.querySelector("#menuPw");if(mp)mp.onclick=pwFromMenu;
   ov.querySelector("#menuExport").onclick=()=>{exportData();closeModal()};
   ov.querySelector("#menuImport").onclick=()=>{closeModal();$("#importFile").click()};
 }
