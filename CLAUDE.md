@@ -1,6 +1,6 @@
 # Daily Flow : consignes pour Claude Code
 
-Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et le 21 octobre 2026 (mot de passe oublié ou changé). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
+Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et le 21 octobre 2026 (mot de passe oublié ou changé, nettoyage de la base). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
 
 ## Méthode de travail (obligatoire)
 
@@ -21,7 +21,7 @@
 
 - Un fichier index.html, publié par GitHub Pages sous chrisbesan25.github.io/daily-flow-v2-claude/ (toujours avec la barre finale). Le dépôt est public.
 - Seule exception à la règle du fichier unique (20 octobre 2026) : sw.js, le service worker du démarrage hors connexion. docs/sw-arret.js est sa version d'arrêt de secours.
-- Données dans Supabase (projet daily-flow-v2-claude) : tables tasks, prefs et notes (notes inutilisée).
+- Données dans Supabase (projet daily-flow-v2-claude) : tables tasks et prefs (notes supprimée le 21 octobre 2026, voir « Base de données »).
 - Connexion par compte Supabase (e-mail et mot de passe), inscriptions fermées. Mot de passe oublié ou changé par un code reçu par e-mail (voir « Mot de passe »). La clé publishable est dans le fichier : elle est publique par conception. Aucun autre secret ne doit jamais entrer dans le dépôt.
 - Bibliothèque figée : supabase-js 2.117.0. La changer seulement volontairement, après essai. Si elle change : modifier aussi BIBLIO dans sw.js (même adresse que l'import) et passer VERSION à la suivante. Même règle pour l'adresse Google Fonts (POLICES dans sw.js).
 - Budget perso est publié sur le même site : les deux apps partagent le stockage du navigateur. Les clés de Daily Flow commencent par daily-flow-v3 (et df-uid pour les anciens appareils), celles de Budget par budget-. Caches du service worker : daily-flow-v3-sw-* pour Daily Flow, budget-sw-* pour Budget (20 octobre 2026) ; aucun code ne touche aux caches de l'autre app.
@@ -54,6 +54,16 @@
 - Sécurité par ligne active, politiques de propriétaire uniquement (user_id égal à l'identifiant du compte connecté). Aucun droit pour le rôle anonyme.
 - Toute nouvelle table : sécurité par ligne, politiques de propriétaire et droits accordés au seul rôle authenticated, dans la migration qui la crée, et ajout au temps réel si l'app l'écoute. À partir du 30 octobre 2026, Supabase n'accorde plus de droits d'office aux nouvelles tables (courriel de Supabase du 23 septembre 2026).
 - Aucune migration sans feu vert explicite de Christophe.
+- Fonction rls_auto_enable (déclencheur sur événement ensure_rls) : active la sécurité par ligne sur toute nouvelle table de public. À garder. Droit d'exécution retiré à public, anon et authenticated le 21 octobre 2026 (migration r7_revoquer_execution_rls_auto_enable) ; contrôlé avant et après sur une table d'essai : la sécurité s'active toujours ; les deux alertes de Supabase ont disparu.
+- Nettoyage du 21 octobre 2026 (R12), lancé par Christophe dans l'éditeur SQL, donc absent de l'historique des migrations :
+  - tasks : colonnes héritées notes, tags, subtasks, due_date et due_time supprimées (vides sur les 20 tâches) ; restent id, user_id, text, category, completed, deleted, position, color, created_at, updated_at, deleted_at ;
+  - table notes supprimée (0 ligne, inutilisée), avec ses règles, ses index et son inscription au temps réel ;
+  - index idx_tasks_user supprimé (doublon de idx_tasks_user_deleted) ;
+  - prefs : ligne orpheline du compte d'essai supprimée, puis colonne héritée tags supprimée (5 anciennes étiquettes inutilisées, supprimées avec l'accord de Christophe) ; restent user_id, cats, updated_at, theme.
+- Après nettoyage : sécurité par ligne et 8 règles de propriétaire sur tasks et prefs, temps réel sur les deux, aucune alerte de performance. Seule alerte de sécurité restante : protection contre les mots de passe divulgués, non disponible sur l'offre gratuite.
+- Pas de clé étrangère vers auth.users (user_id est du texte) : choix maintenu le 21 octobre 2026. Ne jamais supprimer le compte (voir docs/secours-mot-de-passe.md).
+- Connecteur Supabase de Claude : les suppressions qu'il lance demandent une confirmation qui n'arrive pas à temps (annulées deux fois le 21 octobre 2026). Toute instruction destructrice passe donc par l'éditeur SQL, lancée par Christophe, avec garde-fous dans une transaction. Accès du connecteur seulement sur accord explicite, pour un chantier donné.
+- Vérifié en réel le 21 octobre 2026 sur le PC après R7 et R12 (ajout, modification, suppression, ambiance, synchronisation). Téléphone non testé (panne de l'opérateur mobile), jugé inutile par Christophe : aucun champ utilisé par l'app n'a changé. À revoir seulement en cas de problème.
 
 ## Démarrage hors connexion (vérifié au banc et en réel le 20 octobre 2026)
 
@@ -109,11 +119,9 @@ Recommandations du second complément du 24 septembre, traitées le jour même :
 - Démarrage hors connexion : chantier clos le 20 octobre 2026, rien en attente.
 - À décider plus tard : hors ligne, « Dernière synchronisation » peut afficher une heure ancienne (voir « Limites connues »).
 
-Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data. Au 21 octobre 2026 : R1 faite (mot de passe long, propre à Daily Flow, rangé dans le gestionnaire, changé par l'app) ; R3 faite (voir « Mot de passe ») ; R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ; R11 close sans changement (aucun appui perdu constaté).
-- R7 (P3) : retirer aux rôles anon et authenticated le droit d'exécuter la fonction rls_auto_enable, par migration sur feu vert de Christophe, puis contrôle sur une table d'essai.
-- R8 (P3) : surveiller les versions de supabase-js ; rester en 2.117.0, toute montée de version volontaire, après banc et test réel (et BIBLIO dans sw.js, voir « L'app »).
+Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data. Au 21 octobre 2026 : R1 faite (mot de passe long, propre à Daily Flow, rangé dans le gestionnaire, changé par l'app) ; R3 faite (voir « Mot de passe ») ; R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ; R11 close sans changement (aucun appui perdu constaté) ; R7 et R12 faites (voir « Base de données »).
+- R8 (P3) : surveiller les versions de supabase-js ; rester en 2.117.0, toute montée de version volontaire, après banc et test réel (et BIBLIO dans sw.js, voir « L'app »). Vérifié le 21 octobre 2026 : dernière version 2.118.0 (15 octobre), aucun correctif de sécurité de la bibliothèque depuis 2.117.0 ; décision de rester en 2.117.0. Déclencheur pour passer en 2.117.1 (renouvellement de session entre deux onglets) : un écran « Reconnexion » sans raison avec deux onglets ouverts. Prochaine vérification vers le 21 novembre 2026.
 - R9 (P3) : voir une fois en réel les textes de conflit (même texte modifié des deux côtés, téléphone en mode avion).
-- R12 (P3) : nettoyage de la base (colonnes héritées vides de tasks, table notes vide, index inutilisés), sans urgence et rien sans décision. Constaté le 21 octobre 2026 : aucune clé étrangère vers auth.users (supprimer un compte laisse ses lignes) ; une ligne prefs orpheline du compte d'essai supprimé.
 
 ## Documents de référence (dossier docs)
 
