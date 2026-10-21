@@ -17,6 +17,20 @@
 - Ne jamais présenter comme vérifié ce qui ne l'a pas été. Signaler les limites.
 - Dépôt modifié en dehors de la session : au début de chaque nouvelle demande de Christophe, lancer `git fetch origin main` et comparer avec la version sur laquelle la session travaille. Si main a avancé (par exemple un fichier déposé par Christophe sur GitHub), le dire avant toute autre chose, et proposer de mettre à jour la branche de travail avant de lire ou de modifier quoi que ce soit. Une session travaille sur la copie faite à son ouverture : sans cette vérification, elle lit des fichiers périmés.
 
+## Réflexes de chantier (fiche du 24 septembre 2026)
+
+Points de vigilance de la fiche « Daily Flow : reste à faire et points de vigilance » (document du projet Claude) qui ne figurent pas ailleurs dans ce fichier :
+- V2, diagnostic : contrôler par son empreinte que le fichier lu est bien celui qui est publié, avant de s'y fier.
+- V4, banc : un échec peut venir du banc lui-même (saisie simulée sans événement de frappe, scénario mal ordonné, comme le 21 octobre 2026) ; l'isoler avant de corriger l'app.
+- V5, après le test réel : écrire noir sur blanc dans ce fichier ce qui est vérifié (banc ou réel, avec la date) et ce qui reste ouvert, et contrôler qu'aucun document plus ancien ne le contredit.
+- V12, base : après chaque migration, relancer l'analyseur de sécurité de Supabase et relire les politiques et les droits réels.
+- V14, déploiement en plusieurs étapes (compte, migration, fichier, connexion) : écrire l'ordre de bascule avant, le suivre pas à pas, et contrôler à l'écran les réglages que SQL ne montre pas (fermeture des inscriptions, modèles de courriel).
+- V15, offre gratuite de Supabase : pas de protection contre les mots de passe divulgués ; le projet est mis en pause après une période sans activité suffisante (environ une semaine selon la fiche, seuil non chiffré par la documentation, non vérifié). Après une longue absence, le relancer depuis le tableau de bord, possible pendant un an.
+- V18, dépôt par l'interface de GitHub : créer un dossier par « Create new file » en tapant docs/, toujours valider par « Commit changes », vérifier le nom exact du fichier (pas de « (2) »), puis faire contrôler le dépôt.
+- V21, connecteur Supabase : rester devant l'écran quand Claude interroge la base ; ses demandes de confirmation se perdent sinon (voir « Base de données »).
+
+La fiche du 24 septembre est entièrement traitée au 21 octobre 2026, sauf R9 (voir « En attente »).
+
 ## L'app
 
 - Un fichier index.html, publié par GitHub Pages sous chrisbesan25.github.io/daily-flow-v2-claude/ (toujours avec la barre finale). Le dépôt est public.
