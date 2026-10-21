@@ -1,6 +1,6 @@
 # Daily Flow : consignes pour Claude Code
 
-Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
+Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et le 21 octobre 2026 (mot de passe oublié ou changé). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
 
 ## Méthode de travail (obligatoire)
 
@@ -22,7 +22,7 @@
 - Un fichier index.html, publié par GitHub Pages sous chrisbesan25.github.io/daily-flow-v2-claude/ (toujours avec la barre finale). Le dépôt est public.
 - Seule exception à la règle du fichier unique (20 octobre 2026) : sw.js, le service worker du démarrage hors connexion. docs/sw-arret.js est sa version d'arrêt de secours.
 - Données dans Supabase (projet daily-flow-v2-claude) : tables tasks, prefs et notes (notes inutilisée).
-- Connexion par compte Supabase (e-mail et mot de passe), inscriptions fermées. La clé publishable est dans le fichier : elle est publique par conception. Aucun autre secret ne doit jamais entrer dans le dépôt.
+- Connexion par compte Supabase (e-mail et mot de passe), inscriptions fermées. Mot de passe oublié ou changé par un code reçu par e-mail (voir « Mot de passe »). La clé publishable est dans le fichier : elle est publique par conception. Aucun autre secret ne doit jamais entrer dans le dépôt.
 - Bibliothèque figée : supabase-js 2.117.0. La changer seulement volontairement, après essai. Si elle change : modifier aussi BIBLIO dans sw.js (même adresse que l'import) et passer VERSION à la suivante. Même règle pour l'adresse Google Fonts (POLICES dans sw.js).
 - Budget perso est publié sur le même site : les deux apps partagent le stockage du navigateur. Les clés de Daily Flow commencent par daily-flow-v3 (et df-uid pour les anciens appareils), celles de Budget par budget-. Caches du service worker : daily-flow-v3-sw-* pour Daily Flow, budget-sw-* pour Budget (20 octobre 2026) ; aucun code ne touche aux caches de l'autre app.
 
@@ -38,6 +38,16 @@
 - Double modification : fusion par champ ; question seulement si le même champ a deux valeurs différentes. La version en ligne l'emporte sans question pour trois champs seulement : l'ordre (position), la date de mise en corbeille (deleted_at) et l'ambiance (theme). Le fait d'être ou non à la corbeille (deleted) suit la règle générale : question si les deux côtés divergent.
 - Textes des questions de conflit validés le 24 septembre 2026 (« Modifiée à deux endroits », « Ici », « Ailleurs », conséquence de chaque réponse). Ne pas les changer sans validation.
 - Saisie en cours : seulement si quelque chose a été tapé dans la zone d'édition. Une zone simplement ouverte n'empêche pas le rafraîchissement.
+
+## Mot de passe (vérifié au banc et en réel le 21 octobre 2026)
+
+- Lien « Mot de passe oublié ? » sur l'écran de connexion et de reconnexion ; menu, rubrique Compte : « Changer le mot de passe » (après confirmation). Un seul écran pour les deux : code reçu par e-mail, nouveau mot de passe (PW_MIN, 12 caractères) et confirmation.
+- Fonctions pwStart, pwFromMenu, showPw, pwSubmit, pwFinish ; variable pw. Tant que pw est ouvert, startSession ne fait rien : la session de récupération ne démarre l'app qu'après « Continuer ». Une fois vérifié, le code n'est plus redemandé.
+- Supabase : verifyOtp type recovery, puis updateUser. Le serveur ferme alors les sessions des autres appareils, qui affichent « Reconnexion » en gardant leurs modifications en attente (vu en réel : le téléphone l'a demandé presque aussitôt).
+- Modèle de courriel « Reset password » (Authentication, Emails, Templates) modifié le 21 octobre 2026 : objet « Daily Flow : ton code pour changer de mot de passe », corps avec {{ .Token }} et sans lien. Ne pas le remettre par défaut, sinon le courriel ne contient plus de code.
+- Service d'envoi par défaut de Supabase : 2 courriels par heure au plus pour le projet, seulement aux adresses de l'équipe de l'organisation (celle du compte en fait partie). Site URL (http://localhost:3000) et Redirect URLs (vide) ne servent pas : inchangées.
+- Banc : 54 vérifications sur 54 (serveur Supabase simulé, deux appareils, deux onglets). Réel : changement depuis le menu du PC, téléphone reconnecté avec le nouveau mot de passe. Non vu en réel : le lien depuis l'écran de connexion et les messages d'erreur (vus au banc seulement).
+- Secours sans l'app : docs/secours-mot-de-passe.md (requête SQL testée sur un compte d'essai le 21 octobre 2026).
 
 ## Base de données
 
@@ -99,15 +109,11 @@ Recommandations du second complément du 24 septembre, traitées le jour même :
 - Démarrage hors connexion : chantier clos le 20 octobre 2026, rien en attente.
 - À décider plus tard : hors ligne, « Dernière synchronisation » peut afficher une heure ancienne (voir « Limites connues »).
 
-Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data.
-- R1 (P1, Christophe) : mot de passe du compte Daily Flow long, propre à ce service et rangé dans un gestionnaire (offre gratuite de Supabase : pas de protection contre les mots de passe divulgués, pas de lien « mot de passe oublié »).
-- R3 (P2) : procédure de secours pour le mot de passe, à écrire et tester (réinitialisation depuis le tableau de bord Supabase, ou lien « mot de passe oublié » dans l'app).
+Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data. Au 21 octobre 2026 : R1 faite (mot de passe long, propre à Daily Flow, rangé dans le gestionnaire, changé par l'app) ; R3 faite (voir « Mot de passe ») ; R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ; R11 close sans changement (aucun appui perdu constaté).
 - R7 (P3) : retirer aux rôles anon et authenticated le droit d'exécuter la fonction rls_auto_enable, par migration sur feu vert de Christophe, puis contrôle sur une table d'essai.
 - R8 (P3) : surveiller les versions de supabase-js ; rester en 2.117.0, toute montée de version volontaire, après banc et test réel (et BIBLIO dans sw.js, voir « L'app »).
 - R9 (P3) : voir une fois en réel les textes de conflit (même texte modifié des deux côtés, téléphone en mode avion).
-- R10 (P3) : trancher sur deux contrastes de l'ambiance ivoire (onglets inactifs 2,58, onglet Perso actif 2,87, sous le seuil de 3), charte figée en attendant.
-- R11 (P3) : délai de grâce après un appui (bloc 4 de Budget), seulement si un appui perdu est constaté en usage.
-- R12 (P3) : nettoyage de la base (colonnes héritées vides de tasks, table notes vide, index inutilisés), sans urgence et rien sans décision.
+- R12 (P3) : nettoyage de la base (colonnes héritées vides de tasks, table notes vide, index inutilisés), sans urgence et rien sans décision. Constaté le 21 octobre 2026 : aucune clé étrangère vers auth.users (supprimer un compte laisse ses lignes) ; une ligne prefs orpheline du compte d'essai supprimé.
 
 ## Documents de référence (dossier docs)
 
@@ -116,6 +122,7 @@ Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de 
 - complement-2-verification-croisee-daily-flow.md : vérification croisée Budget et Daily Flow, 24 septembre 2026.
 
 - fiche-pont-hors-connexion.md : démarrage hors connexion de Budget et de Daily Flow, 20 octobre 2026.
+- secours-mot-de-passe.md : oubli du mot de passe, lien de l'app et requête SQL de dernier recours, 21 octobre 2026.
 - sw-arret.js : version d'arrêt de secours du service worker (voir « Désactivation »).
 
 Les trois premières se lisent ensemble ; en cas de contradiction entre elles, la plus récente prévaut. Ce CLAUDE.md prévaut sur toutes.
