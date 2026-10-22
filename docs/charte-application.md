@@ -1,6 +1,6 @@
 # Charte de l'application Daily Flow
 
-**Version 1.0 du 22 octobre 2026 · Christophe** (relevé du code ; décisions de Christophe sur la section 5.2 à venir)
+**Version 1.1 du 22 octobre 2026 · Christophe** (1.0 du même jour : relevé du code ; 1.1 : décision de Christophe sur les couples sous les seuils)
 
 > **Ce document décrit, il ne prescrit pas.** Il relève l'allure que l'application applique aujourd'hui, à partir de son code, comme le prévoit la section 7.1 de la charte des livrables (version 1.6.8 du 21 octobre 2026). Il ne change rien à l'application : ni couleur, ni police, ni mise en page.
 >
@@ -16,7 +16,7 @@ La charte des livrables (section 7.1) donne à chaque application sa propre char
 
 Les seuils de contraste restent obligatoires, **sauf pour les couples que Christophe a acceptés par écrit et que la section 5.1 énumère**. Un couple nouveau sous le seuil se soumet à Christophe avant d'être employé.
 
-**État au 22 octobre 2026.** Le seul accord écrit sur les contrastes est la décision R10 du 21 octobre 2026, qui couvre deux couples de l'ambiance ivoire (section 5.1). Le relevé trouve d'autres couples sous les seuils, dans les neuf ambiances : ils sont énumérés en section 5.2, par famille, et restent à trancher par Christophe, famille par famille. En attendant, l'allure actuelle fait foi (charte des livrables, section 7.1) : rien n'est changé dans l'app.
+**Décision du 22 octobre 2026.** Avant ce relevé, le seul accord écrit sur les contrastes était la décision R10 du 21 octobre 2026, qui couvre deux couples de l'ambiance ivoire. Le relevé a trouvé d'autres couples sous les seuils, dans les neuf ambiances, en huit familles. Christophe les a tous acceptés tels quels le 22 octobre 2026 (« familles : on laisse tout comme c'est aujourd'hui »). Tous ces couples sont énumérés en section 5.1 ; au 22 octobre 2026, l'app n'emploie aucun couple sous les seuils sans accord écrit, et rien n'y est changé.
 
 ---
 
@@ -130,48 +130,48 @@ La même que pour Budget le 22 octobre 2026.
 
 | Famille | Couples sous le seuil | Où |
 |---|---|---|
-| Accord R10 (section 5.1) | 2 | Ivoire : onglets inactifs, onglet actif `#FF5A36` |
-| A. Onglets de catégorie inactifs, hors ivoire | 7 | 5.2 |
-| B. Onglet de catégorie actif | 55 | 5.2 |
-| C. Autres textes en `--ink3` | 64 | 5.2 |
-| D. Tâches sans couleur à 50 % (faites, en glissement) | 45 | 5.2 |
-| E. Tâches de couleur pleine, texte blanc | 46 | 5.2 |
-| F. Tâches pastel, texte blanc | 60 | 5.2 |
-| G. Tâches colorées faites ou en glissement | 1 296 | 5.2 et annexe |
-| H. Rouge d'alerte | 26 | 5.2 |
+| Accord R10 du 21 octobre 2026 | 2 | 5.1 (ivoire : onglets inactifs, onglet actif `#FF5A36`) |
+| A. Onglets de catégorie inactifs, hors ivoire | 7 | 5.1 |
+| B. Onglet de catégorie actif | 55 | 5.1 |
+| C. Autres textes en `--ink3` | 64 | 5.1 |
+| D. Tâches sans couleur à 50 % (faites, en glissement) | 45 | 5.1 |
+| E. Tâches de couleur pleine, texte blanc | 46 | 5.1 |
+| F. Tâches pastel, texte blanc | 60 | 5.1 |
+| G. Tâches colorées faites ou en glissement | 1 296 | 5.1 et annexe |
+| H. Rouge d'alerte | 26 | 5.1 |
 
 Dans les tableaux, **une valeur en gras est sous le seuil** ; une valeur en maigre l'atteint. Les ambiances sont nommées comme dans le code (`rosee` pour rosée).
 
 ### 5.1 Couples acceptés par écrit
 
-**Décision R10 du 21 octobre 2026 : contrastes de l'ambiance ivoire gardés tels quels.** Texte de l'action R10, tel que `CLAUDE.md` le portait jusqu'au commit `2baa791` du 21 octobre 2026 : « trancher sur deux contrastes de l'ambiance ivoire (onglets inactifs 2,58, onglet Perso actif 2,87, sous le seuil de 3), charte figée en attendant ». Clôture inscrite dans `CLAUDE.md` le même jour : « R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ».
+Deux accords écrits de Christophe, l'un du 21 octobre 2026 (R10), l'autre du 22 octobre 2026 (familles A à H).
+
+**Accord du 21 octobre 2026 : décision R10, contrastes de l'ambiance ivoire gardés tels quels.** Texte de l'action R10, tel que `CLAUDE.md` le portait jusqu'au commit `2baa791` du 21 octobre 2026 : « trancher sur deux contrastes de l'ambiance ivoire (onglets inactifs 2,58, onglet Perso actif 2,87, sous le seuil de 3), charte figée en attendant ». Clôture inscrite dans `CLAUDE.md` le même jour : « R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ».
 
 | Élément | Texte | Fond | Taille, graisse | Seuil | Contraste | Accord |
 |---|---|---|---|---|---|---|
 | Onglet de catégorie inactif (toute catégorie) | `--ink3` `#A29A8C` | `--paper` `#F8F6F0` | 19 px, 700 (texte large) | 3 | 2,58 | 21 octobre 2026 (R10) |
 | Onglet de catégorie actif en `#FF5A36` (Perso par défaut) | `#FF5A36` | `--paper` `#F8F6F0` | 19 px, 700 (texte large) | 3 | 2,87 | 21 octobre 2026 (R10) |
 
-**Portée retenue** : ces deux couples exactement, c'est-à-dire ces deux couleurs, dans cet emploi, dans l'ambiance ivoire. L'accord porte sur la paire de couleurs : il vaut pour l'onglet inactif de toute catégorie, et pour l'onglet actif de toute catégorie en `#FF5A36`. L'onglet Corbeille, plus petit, est traité à part (paragraphe suivant). Les deux valeurs recalculées le 22 octobre 2026 sont celles que citait R10.
+**Portée retenue** : ces deux couples exactement, c'est-à-dire ces deux couleurs, dans cet emploi, dans l'ambiance ivoire. L'accord porte sur la paire de couleurs : il vaut pour l'onglet inactif de toute catégorie, et pour l'onglet actif de toute catégorie en `#FF5A36`. L'onglet Corbeille, plus petit, n'en relève pas (paragraphe suivant). Les deux valeurs recalculées le 22 octobre 2026 sont celles que citait R10.
 
-**Couverture douteuse**, placée en 5.2 : la clôture parle des « contrastes de l'ambiance ivoire », sans les borner, alors que l'action n'en visait que deux. Les autres couples de l'ambiance ivoire sous le seuil (colonne ivoire des familles B, C, D, G et H ; les familles E et F ne dépendent pas de l'ambiance) ne sont donc pas tenus pour acceptés. Le cas le plus proche est l'onglet Corbeille inactif : même couleur, même contraste (2,58), mais 16 px en graisse 600, donc au seuil de 4,5 et non de 3.
+**Couverture douteuse de R10**, levée par l'accord du 22 octobre 2026 : la clôture parle des « contrastes de l'ambiance ivoire », sans les borner, alors que l'action n'en visait que deux. Les autres couples de l'ambiance ivoire sous le seuil (colonne ivoire des familles B, C, D, G et H ; les familles E et F ne dépendent pas de l'ambiance) n'étaient donc pas tenus pour acceptés par R10. Le cas le plus proche est l'onglet Corbeille inactif : même couleur, même contraste (2,58), mais 16 px en graisse 600, donc au seuil de 4,5 et non de 3.
 
-### 5.2 Couples sous le seuil sans accord écrit
-
-Au 22 octobre 2026, aucun de ces couples n'a d'accord écrit. Ils sont tous dans l'app depuis avant la charte des livrables 1.6.8 ; aucun n'est nouveau. Christophe les tranche famille par famille ; chaque décision sera inscrite ici avec sa date, et un couple accepté passera en section 5.1.
+**Accord du 22 octobre 2026 : familles A à H, acceptées telles quelles par Christophe** (« familles : on laisse tout comme c'est aujourd'hui »). Ces couples étaient tous dans l'app avant la charte des livrables 1.6.8 ; aucun n'est nouveau. Avant cette date, aucun accord écrit ne les couvrait. L'accord vaut aussi pour les couples de l'ambiance ivoire dont la couverture par R10 était douteuse.
 
 #### A. Onglets de catégorie inactifs, hors ivoire
 
-`--ink3` sur `--paper`. L'ambiance ivoire est couverte par R10 (5.1) ; encre atteint le seuil.
+`--ink3` sur `--paper`. L'ambiance ivoire est couverte par R10 ; encre atteint le seuil.
 
 | Élément | Taille, graisse | Seuil | galet | ivoire | brume | sauge | ciel | rosee | sable | lavande | encre |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Onglet de catégorie inactif .tab (ink3 sur paper) | 19 px, 700 | 3 | **2,41** | **2,58** | **2,38** | **2,42** | **2,39** | **2,58** | **2,45** | **2,65** | 3,12 |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### B. Onglet de catégorie actif
 
-Couleur de la catégorie sur `--paper`, 19 px, 700, texte large, seuil 3. Perso (`#FF5A36`) en ivoire est couvert par R10 (5.1) et figure ici pour mémoire. Sous le seuil : Perso dans les sept autres ambiances claires, et six des douze couleurs proposées (`#F97316`, `#EAB308`, `#22C55E`, `#14B8A6`, `#06B6D4`, `#84CC16`) dans les huit ambiances claires. Pro (`#0052FF`) atteint le seuil partout. En encre, toutes les couleurs atteignent le seuil.
+Couleur de la catégorie sur `--paper`, 19 px, 700, texte large, seuil 3. Perso (`#FF5A36`) en ivoire est couvert par R10 et figure ici pour mémoire. Sous le seuil : Perso dans les sept autres ambiances claires, et six des douze couleurs proposées (`#F97316`, `#EAB308`, `#22C55E`, `#14B8A6`, `#06B6D4`, `#84CC16`) dans les huit ambiances claires. Pro (`#0052FF`) atteint le seuil partout. En encre, toutes les couleurs atteignent le seuil.
 
 | Couleur de catégorie | galet | ivoire | brume | sauge | ciel | rosee | sable | lavande | encre |
 |---|---|---|---|---|---|---|---|---|---|
@@ -188,11 +188,11 @@ Couleur de la catégorie sur `--paper`, 19 px, 700, texte large, seuil 3. Perso 
 | `#D946EF` | 3,13 | 3,20 | 3,08 | 3,04 | 3,09 | 3,06 | 3,05 | 3,03 | 5,09 |
 | `#84CC16` | **1,79** | **1,83** | **1,76** | **1,74** | **1,77** | **1,75** | **1,74** | **1,73** | 8,91 |
 
-Seules comptent les couleurs réellement employées par les catégories enregistrées, non relues (section 3.4). Décision de Christophe : **à trancher**.
+L'accord couvre les douze couleurs proposées, quelles que soient celles des catégories enregistrées, non relues (section 3.4). Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### C. Autres textes en `--ink3`
 
-`--ink3` sur `--paper` (onglet Corbeille, « + », « Terminées ») ou sur `--field` (texte indicatif, libellés, croix). Sous le seuil dans les neuf ambiances, encre comprise. La colonne ivoire est de couverture douteuse (5.1).
+`--ink3` sur `--paper` (onglet Corbeille, « + », « Terminées ») ou sur `--field` (texte indicatif, libellés, croix). Sous le seuil dans les neuf ambiances, encre comprise. La colonne ivoire, de couverture douteuse par R10, est couverte par l'accord du 22 octobre 2026.
 
 | Élément | Taille, graisse | Seuil | galet | ivoire | brume | sauge | ciel | rosee | sable | lavande | encre |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -206,7 +206,7 @@ Seules comptent les couleurs réellement employées par les catégories enregist
 
 S'y ajoute l'écran de chargement, aux couleurs fixes : marque « DAILY FLOW » `#94A29B` sur `#F3F4F1`, 11 px, 800, seuil 4,5 : **2,41**.
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### D. Tâches sans couleur à 50 % (faites, en glissement)
 
@@ -220,7 +220,7 @@ Rangée à 50 % d'opacité sur `--paper` ; à l'appui ou en glissement, fond `--
 | Tâche terminée, appui, détails (ink2 sur chip, rangée à 50 %) | 15,5 px, 500 | 4,5 | **1,92** | **1,97** | **1,93** | **1,94** | **1,92** | **2,00** | **1,92** | **2,01** | **2,50** |
 | Tâche en glissement, détails (ink2 sur chip, rangée à 50 %) | 15,5 px, 500 | 4,5 | **1,92** | **1,97** | **1,93** | **1,94** | **1,92** | **2,00** | **1,92** | **2,01** | **2,50** |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### E. Tâches de couleur pleine, texte blanc
 
@@ -241,7 +241,7 @@ Blanc sur la teinte, indépendant de l'ambiance. Les titres atteignent le seuil 
 | `#D946EF` | 3,46 | 3,16 | **2,88** | **2,86** | **3,46** |
 | `#F43F5E` | 3,67 | 3,38 | **3,01** | **3,01** | **3,67** |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### F. Tâches pastel, texte blanc
 
@@ -262,7 +262,7 @@ Blanc sur la teinte, indépendant de l'ambiance. Sous le seuil pour toutes les t
 | `#E78CF5` | **2,22** | **2,02** | **1,98** | **1,95** | **2,22** |
 | `#F8889B` | **2,34** | **2,17** | **2,07** | **2,08** | **2,34** |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### G. Tâches colorées faites ou en glissement
 
@@ -295,7 +295,7 @@ Rangée à 50 % d'opacité posée sur `--paper`, donc différente dans chaque am
 | `#E78CF5` | **1,30** à **1,46** | **1,30** à **1,47** | **1,40** à **1,65** | **1,40** à **1,64** | **1,49** à **1,80** | **1,40** à **1,65** |
 | `#F8889B` | **1,32** à **1,50** | **1,33** à **1,51** | **1,43** à **1,70** | **1,44** à **1,72** | **1,52** à **1,86** | **1,43** à **1,70** |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
 
 #### H. Rouge d'alerte
 
@@ -307,7 +307,11 @@ Décision de Christophe : **à trancher**.
 | Vider la corbeille, survol (danger sur danger 8 %) | 14 px, 700 | 4,5 | **3,09** | **3,15** | **3,03** | **3,00** | **3,05** | **3,02** | **3,01** | **2,99** | **4,36** |
 | Bouton Supprimer .btn-danger (blanc sur danger) | 13 px, 700 | 4,5 | **3,76** | **3,76** | **3,76** | **3,76** | **3,76** | **3,76** | **3,76** | **3,76** | **3,76** |
 
-Décision de Christophe : **à trancher**.
+Accord : **accepté tel quel par Christophe le 22 octobre 2026**.
+
+### 5.2 Couples sous le seuil sans accord écrit
+
+Aucun au 22 octobre 2026. Un couple nouveau sous le seuil se soumet à Christophe avant d'être employé (section 7).
 
 ### 5.3 Hors du critère 1.4.3
 
@@ -372,7 +376,7 @@ Tous les autres couples de texte atteignent le seuil dans les neuf ambiances. Pl
 | Connexion, carte .sy-t (ink sur chip) | 15 px, 600 | 4,5 | 12,81 (encre) | 13,99 (lavande) |
 | Connexion, carte .sy-s (ink2 sur chip) | 13,5 px, 400 | 4,5 | 4,58 (galet) | 5,80 (encre) |
 
-Atteignent aussi le seuil : les valeurs en maigre des tableaux de la section 5.2 (onglets inactifs et « Vider la corbeille » en encre, couleurs de catégorie au-dessus de 3, titres des tâches de couleur pleine sur sept teintes).
+Atteignent aussi le seuil : les valeurs en maigre des tableaux de la section 5.1 (onglets inactifs et « Vider la corbeille » en encre, couleurs de catégorie au-dessus de 3, titres des tâches de couleur pleine sur sept teintes).
 
 ---
 
@@ -387,7 +391,7 @@ Budget perso a sa propre charte, dans son dépôt (chrisbesan25/Budget, `docs/ch
 1. Aucune couleur ni police de l'app ne change sans l'accord de Christophe.
 2. Toute teinte nouvelle est vérifiée au calcul avant emploi, dans les neuf ambiances, et sa valeur de contraste est notée en commentaire dans le code (charte des livrables, section 1.11).
 3. Un couple nouveau sous le seuil se soumet à Christophe avant emploi ; s'il est accepté, il entre en section 5.1 avec la date de l'accord.
-4. À chaque changement d'allure ou décision sur la section 5.2, ce fichier est mis à jour (version et date), puis sa copie dans le Contexte du projet Claude.
+4. À chaque changement d'allure ou nouvel accord sur un couple sous le seuil, ce fichier est mis à jour (version et date), puis sa copie dans le Contexte du projet Claude.
 
 ---
 
