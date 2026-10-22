@@ -1,6 +1,6 @@
 # Daily Flow : consignes pour Claude Code
 
-Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et les 21 et 22 octobre 2026 (mot de passe oublié ou changé, nettoyage de la base, textes de conflit vus en réel). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
+Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et les 21 et 22 octobre 2026 (mot de passe oublié ou changé, nettoyage de la base, textes de conflit vus en réel, charte de l'app, crochet de reprise de session). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
 
 ## Méthode de travail (obligatoire)
 
@@ -10,7 +10,7 @@
 - Travailler bloc par bloc : sauvegarde avant modification, contrôle de syntaxe et test après chaque bloc.
 - Banc d'essai avec un serveur simulé qui vérifie réellement les versions. Un serveur qui accepte tout masque les défauts.
 - Livrer par une demande de fusion (pull request), jamais par une fusion directe. Christophe relit et décide.
-- Toute interface nouvelle : maquette validée avant le code. La charte graphique de l'app est figée. La charte des livrables de Christophe ne s'applique pas à l'app.
+- Toute interface nouvelle : maquette validée avant le code. La charte graphique de l'app est figée. La charte de l'app (docs/charte-application.md, copie dans le Contexte du projet Claude) fixe son allure ; la charte des livrables (section 7.1) s'applique pour le reste, et tout nouveau couple de couleurs sous les seuils de contraste se soumet à Christophe avant emploi.
 - Contrôle de contraste de tout nouveau texte sur fond coloré, dans les neuf ambiances (seuil 4,5 pour un texte courant, 3 pour un texte large, critère 1.4.3 de la WCAG, niveau AA).
 - Aucun tiret cadratin : rechercher et éliminer les caractères U+2014, U+2013 et U+2212 avant livraison, y compris dans les commentaires.
 - Tests réels guidés pas à pas sur les deux appareils de Christophe (PC et téléphone Android), avec vérification dans les journaux Supabase quand c'est possible.
@@ -119,6 +119,7 @@ La fiche du 24 septembre est entièrement traitée au 22 octobre 2026 (R9 faite 
   - après un dépôt, ouvrir l'app en ligne, avec un bon réseau, sur chaque appareil, et vérifier que la nouvelle version est affichée avant toute saisie ;
   - une version qui change les clés ou le format des données doit savoir lire l'ancien format : une ancienne page peut encore tourner hors ligne ;
   - avant de supprimer, de renommer le dépôt ou de le passer en privé (ce qui arrête GitHub Pages sur le plan gratuit) : désactiver d'abord (voir « Désactivation ») et ouvrir l'app en ligne sur chaque appareil, sinon l'ancienne copie reste servie sans fin.
+- Crochet de reprise de session (22 octobre 2026) : .claude/settings.json lance .claude/hooks/reprise-session.sh au démarrage de chaque session. Il fait git fetch, puis alerte si main ou la branche de travail en ligne contient des commits absents de la copie de travail, en précisant si elle a changé depuis la dernière session ; il n'alerte pas sur des commits déjà présents dans la copie (nos propres envois) et ne modifie rien. Repère gardé dans .git/daily-flow-reprise-session (perdu avec le conteneur : dans une copie neuve, seule la comparaison avec la copie de travail joue). Il complète la règle de reprise de la « Méthode de travail », qui reste : git fetch origin main au début de chaque nouvelle demande.
 
 ## Déjà vérifié : ne pas refaire
 
@@ -132,8 +133,10 @@ Recommandations du second complément du 24 septembre, traitées le jour même :
 
 - Démarrage hors connexion : chantier clos le 20 octobre 2026, rien en attente.
 - À décider plus tard : hors ligne, « Dernière synchronisation » peut afficher une heure ancienne (voir « Limites connues »).
+- Charte de l'app (22 octobre 2026) : relevé fait dans docs/charte-application.md (version 1.0). Seuls deux couples sous les seuils ont un accord écrit (R10, section 5.1) ; les autres, en huit familles (section 5.2), attendent la décision de Christophe, famille par famille. Rien n'est changé dans l'app en attendant.
+- Crochet de reprise de session : vérifié au banc le 22 octobre 2026 (12 scénarios sur un faux dépôt), pas encore en réel au démarrage d'une session.
 
-Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data. Au 21 octobre 2026 : R1 faite (mot de passe long, propre à Daily Flow, rangé dans le gestionnaire, changé par l'app) ; R3 faite (voir « Mot de passe ») ; R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée) ; R11 close sans changement (aucun appui perdu constaté) ; R7 et R12 faites (voir « Base de données »). Au 22 octobre 2026 : R9 faite (voir « Synchronisation »).
+Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de vigilance » du 24 septembre 2026 (document du projet Claude, pas du dépôt ; numérotation de la fiche, priorité P1 à P3). R4, R5 et R6 sont faites au 20 octobre 2026 (démarrage hors connexion, CLAUDE.md de Budget, crédit Claude Code). R2 est vérifiée le 20 octobre 2026 : seuls les dépôts Budget et daily-flow-v2-claude sont ouverts à Claude sur GitHub, jamais budget-data. Au 21 octobre 2026 : R1 faite (mot de passe long, propre à Daily Flow, rangé dans le gestionnaire, changé par l'app) ; R3 faite (voir « Mot de passe ») ; R10 close sans changement (contrastes de l'ambiance ivoire gardés tels quels, charte figée ; couples couverts : section 5.1 de docs/charte-application.md) ; R11 close sans changement (aucun appui perdu constaté) ; R7 et R12 faites (voir « Base de données »). Au 22 octobre 2026 : R9 faite (voir « Synchronisation »).
 - R8 (P3) : surveiller les versions de supabase-js ; rester en 2.117.0, toute montée de version volontaire, après banc et test réel (et BIBLIO dans sw.js, voir « L'app »). Vérifié le 21 octobre 2026 : dernière version 2.118.0 (15 octobre), aucun correctif de sécurité de la bibliothèque depuis 2.117.0 ; décision de rester en 2.117.0. Déclencheur pour passer en 2.117.1 (renouvellement de session entre deux onglets) : un écran « Reconnexion » sans raison avec deux onglets ouverts. Prochaine vérification vers le 21 novembre 2026.
 
 ## Documents de référence (dossier docs)
@@ -145,5 +148,6 @@ Actions encore ouvertes de la fiche « Daily Flow : reste à faire et points de 
 - fiche-pont-hors-connexion.md : démarrage hors connexion de Budget et de Daily Flow, 20 octobre 2026.
 - secours-mot-de-passe.md : oubli du mot de passe, lien de l'app et requête SQL de dernier recours, 21 octobre 2026.
 - sw-arret.js : version d'arrêt de secours du service worker (voir « Désactivation »).
+- charte-application.md : charte de l'app (polices, couleurs par ambiance, couples sous les seuils de contraste), 22 octobre 2026.
 
 Les trois premières se lisent ensemble ; en cas de contradiction entre elles, la plus récente prévaut. Ce CLAUDE.md prévaut sur toutes.
