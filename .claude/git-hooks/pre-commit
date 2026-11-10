@@ -1,0 +1,6 @@
+#!/bin/sh
+# Contrôle Git du garde-fou des secrets (10 novembre 2026), au moment exact du commit.
+# Activé par .claude/hooks/garde-secrets.sh (core.hooksPath = .claude/git-hooks) ; voir CLAUDE.md.
+racine="$(git rev-parse --show-toplevel)" || exit 0
+[ -f "$racine/.claude/hooks/garde-secrets.sh" ] || exit 0
+exec bash "$racine/.claude/hooks/garde-secrets.sh" --pre-commit

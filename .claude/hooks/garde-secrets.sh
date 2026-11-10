@@ -1,21 +1,32 @@
 #!/usr/bin/env bash
-# Garde-fou des secrets (crochet PreToolUse sur l'outil Bash), ajouté le 10 novembre 2026.
+# Garde-fou des secrets, ajouté le 10 novembre 2026 ; contrôles Git natifs ajoutés le même jour,
+# après le premier test réel (un « git add X && git commit » enchaîné n'était pas vu).
 # Il complète la section « Secrets et réglages de Claude Code » de CLAUDE.md, sans la remplacer.
 #
-# Avant chaque commande Bash, il bloque (code 2) :
+# Trois façons de l'appeler :
+#   - sans argument : crochet PreToolUse de Claude Code sur l'outil Bash (commande reçue en JSON) ;
+#   - --pre-commit : crochet Git, au moment exact du commit (.claude/git-hooks/pre-commit) ;
+#   - --pre-push   : crochet Git, au moment exact de l'envoi (.claude/git-hooks/pre-push).
+#
+# En crochet PreToolUse, il bloque (code 2) :
 #   A. toute commande qui contient une forme connue de secret (jeton GitHub, clé secrète Supabase,
 #      jeton JWT autre que anon, clé AWS ou Anthropic, clé privée, adresse de base avec mot de passe) ;
-#   B. pour git commit (ce qui serait enregistré) et git push (chacun des commits qui partiraient),
-#      tout ce qui contiendrait :
-#      1. un fichier exclu (.claude/settings.local.json, CLAUDE.local.md, .env, .env.*) ;
-#      2. un .claude/settings.json avec autre chose que la clé hooks (permissions, par exemple) ;
-#      3. une ligne ajoutée avec une forme connue de secret ou un mot de passe écrit en dur.
-# Il ne modifie rien et n'affiche jamais la valeur trouvée. Sans git ou hors dépôt, il laisse passer.
-# Limites : il ne contrôle que le dépôt de la session (CLAUDE_PROJECT_DIR) et les formes de secrets
-# qu'il connaît ; un mot de passe quelconque dans une commande lui échappe.
+#   B. les contournements : git add -f, --no-verify ou commit -n, tout réglage de core.hooksPath ;
+#   C. par prévision, un git commit ou un git push qui contiendrait un fichier exclu
+#      (.claude/settings.local.json, CLAUDE.local.md, .env, .env.*), un .claude/settings.json avec
+#      autre chose que la clé hooks, ou une ligne ajoutée avec une forme connue de secret ou un mot
+#      de passe écrit en dur ; si la commande contient aussi un git add, les fichiers non suivis
+#      sont examinés en entier.
+#   Il active aussi, à chaque appel, les crochets Git du dépôt (core.hooksPath = .claude/git-hooks,
+#   réglage local de la copie, seule chose qu'il modifie).
+# En crochet Git, il refuse (code 1) le commit ou l'envoi qui contient l'un des cas de C : c'est le
+# contrôle qui voit le contenu réel, quelle que soit la façon dont le commit a été lancé.
+# Il n'affiche jamais la valeur trouvée. Sans git ou hors dépôt, il laisse passer.
+# Limites : formes de secrets connues seulement (un mot de passe quelconque dans une commande lui
+# échappe) ; dépôt de la session seulement ; s'il ne peut pas s'exécuter, il laisse passer.
 
 set -u
-entree="$(cat)"
+mode="${1:-outil}"
 
 problemes=""
 signaler() { problemes="${problemes}
@@ -49,10 +60,7 @@ controler_texte() {
     done
 }
 
-# A. La commande elle-même.
-controler_texte "$entree" "la commande"
-
-# Fichier exclu, puis lignes ajoutées : $1 = chemin, $2 = lignes ajoutées, $3 = moment (« à enregistrer », « à envoyer »).
+# Fichier exclu, puis lignes ajoutées : $1 = chemin, $2 = lignes ajoutées, $3 = moment.
 examiner_fichier() {
     local f="$1" ajouts="$2" moment="$3"
     case "$f" in
@@ -79,46 +87,105 @@ examiner_reglages() {
 
 lignes_ajoutees() { grep -E '^\+' | grep -vE '^\+\+\+ '; }
 
-# B. git commit ou git push. Le commit est jugé sur ce qu'il enregistrerait (index, et fichiers suivis
-# modifiés pour git commit -a) : une erreur déjà enregistrée n'empêche donc pas le commit qui la corrige.
-# L'envoi est jugé sur chacun des commits qui ne sont encore sur aucune branche en ligne : c'est ce qui
-# partirait, historique compris.
-git_cmd='(^|[^[:alnum:]_-])git([[:space:]]+[^[:space:];|&]+)*[[:space:]]+'
-fin_cmd='([^[:alnum:]_-]|$)'
-fait_commit=0; fait_push=0
-printf '%s' "$entree" | grep -Eq "${git_cmd}commit${fin_cmd}" && fait_commit=1
-printf '%s' "$entree" | grep -Eq "${git_cmd}push${fin_cmd}" && fait_push=1
-
-if [ $(( fait_commit + fait_push )) -gt 0 ] \
-   && cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1; then
-
-    if [ "$fait_commit" = 1 ]; then
+# Ce que le prochain commit enregistrerait : index (et, si $1 = avec_suivis, fichiers suivis modifiés,
+# cas de git commit -a ; si $2 = avec_nouveaux, fichiers non suivis, cas d'un git add dans la commande).
+examiner_commit() {
+    local suivis="$1" nouveaux="$2" f liste contenu
+    liste="$( { git diff --cached --name-only; [ "$suivis" = avec_suivis ] && git diff --name-only; } 2>/dev/null | sort -u )"
+    while IFS= read -r f; do
+        [ -z "$f" ] && continue
+        examiner_fichier "$f" "$( { git diff --cached -U0 -- "$f"; [ "$suivis" = avec_suivis ] && git diff -U0 -- "$f"; } 2>/dev/null | lignes_ajoutees )" "à enregistrer"
+    done <<< "$liste"
+    if [ "$nouveaux" = avec_nouveaux ]; then
         while IFS= read -r f; do
             [ -z "$f" ] && continue
-            examiner_fichier "$f" "$( { git diff --cached -U0 -- "$f"; git diff -U0 -- "$f"; } 2>/dev/null | lignes_ajoutees )" "à enregistrer"
-        done <<< "$( { git diff --cached --name-only; git diff --name-only; } 2>/dev/null | sort -u )"
-        contenu="$(git show :.claude/settings.json 2>/dev/null)" && examiner_reglages "$contenu" "index"
-        [ -f .claude/settings.json ] && examiner_reglages "$(cat .claude/settings.json)" "copie de travail"
+            if [ -f "$f" ] && grep -Iq . "$f" 2>/dev/null; then
+                examiner_fichier "$f" "$(cat "$f")" "nouveau fichier"
+            else
+                examiner_fichier "$f" "" "nouveau fichier"
+            fi
+        done <<< "$(git ls-files --others --exclude-standard 2>/dev/null)"
     fi
-
-    if [ "$fait_push" = 1 ]; then
-        while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            examiner_fichier "$f" "$(git log -p -U0 --format= HEAD --not --remotes -- "$f" 2>/dev/null | lignes_ajoutees)" "à envoyer"
-        done <<< "$(git log --name-only --format= HEAD --not --remotes 2>/dev/null | sort -u)"
-        for c in $(git rev-list HEAD --not --remotes -- .claude/settings.json 2>/dev/null); do
-            contenu="$(git show "$c:.claude/settings.json" 2>/dev/null)" && examiner_reglages "$contenu" "commit $(git rev-parse --short "$c") à envoyer"
-        done
+    contenu="$(git show :.claude/settings.json 2>/dev/null)" && examiner_reglages "$contenu" "index"
+    if [ "$suivis" = avec_suivis ] && [ -f .claude/settings.json ]; then
+        examiner_reglages "$(cat .claude/settings.json)" "copie de travail"
     fi
-fi
+}
 
-if [ -n "$problemes" ]; then
+# Ce qu'un envoi ferait partir : chacun des commits atteignables depuis $1 et sur aucune branche en ligne.
+examiner_envoi() {
+    local tete="$1" f c contenu
+    while IFS= read -r f; do
+        [ -z "$f" ] && continue
+        examiner_fichier "$f" "$(git log -p -U0 --format= "$tete" --not --remotes -- "$f" 2>/dev/null | lignes_ajoutees)" "à envoyer"
+    done <<< "$(git log --name-only --format= "$tete" --not --remotes 2>/dev/null | sort -u)"
+    for c in $(git rev-list "$tete" --not --remotes -- .claude/settings.json 2>/dev/null); do
+        contenu="$(git show "$c:.claude/settings.json" 2>/dev/null)" && examiner_reglages "$contenu" "commit $(git rev-parse --short "$c") à envoyer"
+    done
+}
+
+terminer() { # $1 = code de blocage, $2 = ce qui est bloqué
+    [ -z "$problemes" ] && exit 0
     {
-        printf 'GARDE-FOU SECRETS : commande bloquée avant exécution.%s\n' "$problemes"
-        printf 'Ne pas contourner ce blocage (ni git add -f, ni modification du crochet ou des réglages). '
+        printf 'GARDE-FOU SECRETS : %s.%s\n' "$2" "$problemes"
+        printf 'Ne pas contourner ce blocage (ni git add -f, ni --no-verify, ni modification du crochet, des réglages ou de core.hooksPath). '
         printf 'Le dire à Christophe en tête de réponse et appliquer la section « Secrets et réglages de Claude Code » de CLAUDE.md. '
         printf 'Aucune valeur n'"'"'est affichée ici. Faux positif : seul Christophe décide.\n'
     } >&2
-    exit 2
+    exit "$1"
+}
+
+case "$mode" in
+--pre-commit)
+    cd "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || exit 0
+    examiner_commit index_seul sans_nouveaux
+    terminer 1 "commit refusé par le contrôle Git"
+    ;;
+--pre-push)
+    cd "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || exit 0
+    while read -r ref_locale sha_local ref_distante sha_distant; do
+        case "$sha_local" in ""|*[!0]*) ;; *) continue ;; esac   # suppression de branche : rien n'est envoyé
+        [ -n "$sha_local" ] && examiner_envoi "$sha_local"
+    done
+    terminer 1 "envoi refusé par le contrôle Git"
+    ;;
+esac
+
+# Crochet PreToolUse : la commande arrive en JSON sur l'entrée standard.
+entree="$(cat)"
+
+# A. La commande elle-même.
+controler_texte "$entree" "la commande"
+
+# B. Contournements.
+git_cmd='(^|[^[:alnum:]_-])git([[:space:]]+[^[:space:];|&]+)*[[:space:]]+'
+fin_cmd='([^[:alnum:]_-]|$)'
+if printf '%s' "$entree" | grep -Eq "${git_cmd}(add|stage)([[:space:]]+[^;|&]*)?[[:space:]](--force|-[a-zA-Z]*f[a-zA-Z]*)${fin_cmd}"; then
+    signaler "la commande : git add forcé (-f ou --force), interdit par CLAUDE.md"
 fi
-exit 0
+if printf '%s' "$entree" | grep -Eq -- "--no-verify${fin_cmd}" \
+   || printf '%s' "$entree" | grep -Eq "${git_cmd}commit([[:space:]]+[^;|&]*)?[[:space:]]-[a-zA-Z]*n[a-zA-Z]*${fin_cmd}"; then
+    signaler "la commande : contrôles Git sautés (--no-verify ou commit -n)"
+fi
+if printf '%s' "$entree" | grep -Eiq 'core\.hookspath'; then
+    signaler "la commande : réglage de core.hooksPath (il désactiverait les contrôles Git)"
+fi
+
+if cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1; then
+    # Activation des crochets Git du dépôt, à chaque appel (la copie d'une session web est neuve).
+    if [ -f .claude/git-hooks/pre-commit ] && [ "$(git config --local --get core.hooksPath 2>/dev/null)" != ".claude/git-hooks" ]; then
+        git config --local core.hooksPath .claude/git-hooks 2>/dev/null
+    fi
+
+    # C. Prévision pour git commit et git push.
+    fait_add=0; fait_commit=0; fait_push=0
+    printf '%s' "$entree" | grep -Eq "${git_cmd}(add|stage)${fin_cmd}" && fait_add=1
+    printf '%s' "$entree" | grep -Eq "${git_cmd}commit${fin_cmd}" && fait_commit=1
+    printf '%s' "$entree" | grep -Eq "${git_cmd}push${fin_cmd}" && fait_push=1
+    if [ "$fait_commit" = 1 ]; then
+        if [ "$fait_add" = 1 ]; then examiner_commit avec_suivis avec_nouveaux; else examiner_commit avec_suivis sans_nouveaux; fi
+    fi
+    [ "$fait_push" = 1 ] && examiner_envoi HEAD
+fi
+
+terminer 2 "commande bloquée avant exécution"
