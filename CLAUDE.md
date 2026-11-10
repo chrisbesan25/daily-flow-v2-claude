@@ -1,6 +1,6 @@
 # Daily Flow : consignes pour Claude Code
 
-Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion) et les 21 et 22 octobre 2026 (mot de passe oublié ou changé, nettoyage de la base, textes de conflit vus en réel, charte de l'app, crochet de reprise de session). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
+Établi le 24 septembre 2026, mis à jour le 20 octobre 2026 (démarrage hors connexion), les 21 et 22 octobre 2026 (mot de passe oublié ou changé, nettoyage de la base, textes de conflit vus en réel, charte de l'app, crochet de reprise de session) et le 10 novembre 2026 (secrets et réglages de Claude Code). Ce fichier est lu au début de chaque session. Il résume l'état réel de l'app et la méthode de travail de Christophe. En cas de doute sur le fonctionnement de Daily Flow, ce fichier et le code font foi. Les fiches du dossier docs décrivent la logique de Budget perso et les leçons tirées pour Daily Flow.
 
 ## Méthode de travail (obligatoire)
 
@@ -17,6 +17,19 @@
 - Ne jamais présenter comme vérifié ce qui ne l'a pas été. Signaler les limites.
 - Dépôt modifié en dehors de la session : au début de chaque nouvelle demande de Christophe, lancer `git fetch origin main` et comparer avec la version sur laquelle la session travaille. Si main a avancé (par exemple un fichier déposé par Christophe sur GitHub), le dire avant toute autre chose, et proposer de mettre à jour la branche de travail avant de lire ou de modifier quoi que ce soit. Une session travaille sur la copie faite à son ouverture : sans cette vérification, elle lit des fichiers périmés.
 - Crochet de reprise de session (voir « Déploiement ») : quand le crochet signale une alerte ou un échec de git fetch, Claude la relaie à Christophe en tête de sa première réponse, même si la demande porte sur autre chose. Son message ne s'affiche pas chez Christophe (constaté sur Budget et sur Daily Flow le 22 octobre 2026) : seul Claude le reçoit.
+
+## Secrets et réglages de Claude Code (10 novembre 2026)
+
+Contexte : selon l'étude d'Apiiro du 5 novembre 2026 (relayée par The Hacker News le 7 novembre), répondre « Oui, et ne plus demander » à une demande d'autorisation enregistre la commande telle quelle, mot de passe ou clé compris, dans `.claude/settings.local.json` ; un bogue signalé l'écrit parfois dans `.claude/settings.json`, qui est versionné ici. L'exclusion que Claude Code pose sur la machine ne vaut pas dans les sessions web : chaque session part d'un conteneur neuf (aucune exclusion globale constatée le 10 novembre 2026). Seul le `.gitignore` du dépôt protège. Contrôle du 9 novembre 2026 sur tout l'historique, toutes branches : aucun de ces fichiers n'a contenu de secret ; seules la clé publishable et l'ancienne clé anon (dans l'historique) y figurent, publiques par conception.
+
+- Aucun secret dans une commande. Claude ne fait jamais passer dans une commande la clé secrète ou le mot de passe de la base Supabase, un jeton GitHub ou le mot de passe du compte Daily Flow. Si une tâche semble l'exiger, Claude s'arrête et propose une autre voie (requête lancée par Christophe dans l'éditeur SQL, connecteur Supabase sur accord explicite).
+- Au clic. Si une demande d'autorisation porte malgré tout sur une commande qui contient une valeur sensible, Claude le dit à Christophe avant qu'il réponde : « Oui » pour cette fois seulement, jamais « Oui, et ne plus demander ».
+- Avant chaque commit. Relire la liste des fichiers indexés (`git diff --cached --name-only`) ; jamais de `git add -A` sans cette relecture, jamais de `git add -f`. `.claude/settings.local.json`, `CLAUDE.local.md` et les fichiers `.env` sont exclus par `.gitignore`. `.claude/settings.json` ne contient que le crochet de reprise de session : s'il contient une section `permissions` ou toute autre valeur nouvelle, s'arrêter et prévenir Christophe avant de valider.
+- Si un secret part quand même dans le dépôt (public) : le tenir pour compromis, même supprimé aussitôt, car l'historique, les copies et les clones le gardent. Dans l'ordre :
+  1. révoquer et renouveler d'abord : mot de passe du compte par « Changer le mot de passe » dans l'app (voir « Mot de passe ») ; mot de passe de la base ou clé secrète régénérés depuis le tableau de bord Supabase, réglages du projet (chemin exact à vérifier à l'écran le moment venu) ; jeton GitHub révoqué dans GitHub (Settings, Developer settings, Personal access tokens) ;
+  2. ensuite seulement, retirer la valeur du dépôt ; réécrire l'historique ne se fait qu'avec l'accord de Christophe et n'efface pas les copies déjà faites ;
+  3. regarder dans les journaux de Supabase et le journal de sécurité du compte GitHub si la valeur a servi ;
+  4. noter dans ce fichier ce qui s'est passé et ce qui a été fait.
 
 ## Réflexes de chantier (fiche du 24 septembre 2026)
 
