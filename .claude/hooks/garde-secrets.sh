@@ -151,23 +151,31 @@ case "$mode" in
     ;;
 esac
 
-# Crochet PreToolUse : la commande arrive en JSON sur l'entrée standard.
+# Crochet PreToolUse : l'appel arrive en JSON sur l'entrée standard.
 entree="$(cat)"
 
-# A. La commande elle-même.
+# Les secrets sont cherchés dans tout l'appel (description comprise) ; les commandes git, seulement
+# dans la commande elle-même (champ tool_input.command, lu par jq), car une description comme
+# « Show last commit » déclenchait à tort la prévision de commit (test réel du 10 novembre 2026).
+# Sans jq, tout l'appel est examiné : plus prudent, quelques blocages à tort possibles.
+commande=""
+command -v jq >/dev/null 2>&1 && commande="$(printf '%s' "$entree" | jq -r '.tool_input.command // empty' 2>/dev/null)"
+[ -z "$commande" ] && commande="$entree"
+
+# A. Les secrets, dans tout l'appel.
 controler_texte "$entree" "la commande"
 
 # B. Contournements.
 git_cmd='(^|[^[:alnum:]_-])git([[:space:]]+[^[:space:];|&]+)*[[:space:]]+'
 fin_cmd='([^[:alnum:]_-]|$)'
-if printf '%s' "$entree" | grep -Eq "${git_cmd}(add|stage)([[:space:]]+[^;|&]*)?[[:space:]](--force|-[a-zA-Z]*f[a-zA-Z]*)${fin_cmd}"; then
+if printf '%s' "$commande" | grep -Eq "${git_cmd}(add|stage)([[:space:]]+[^;|&]*)?[[:space:]](--force|-[a-zA-Z]*f[a-zA-Z]*)${fin_cmd}"; then
     signaler "la commande : git add forcé (-f ou --force), interdit par CLAUDE.md"
 fi
-if printf '%s' "$entree" | grep -Eq -- "--no-verify${fin_cmd}" \
-   || printf '%s' "$entree" | grep -Eq "${git_cmd}commit([[:space:]]+[^;|&]*)?[[:space:]]-[a-zA-Z]*n[a-zA-Z]*${fin_cmd}"; then
+if printf '%s' "$commande" | grep -Eq -- "--no-verify${fin_cmd}" \
+   || printf '%s' "$commande" | grep -Eq "${git_cmd}commit([[:space:]]+[^;|&]*)?[[:space:]]-[a-zA-Z]*n[a-zA-Z]*${fin_cmd}"; then
     signaler "la commande : contrôles Git sautés (--no-verify ou commit -n)"
 fi
-if printf '%s' "$entree" | grep -Eiq 'core\.hookspath'; then
+if printf '%s' "$commande" | grep -Eiq 'core\.hookspath'; then
     signaler "la commande : réglage de core.hooksPath (il désactiverait les contrôles Git)"
 fi
 
@@ -179,9 +187,9 @@ if cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}" 2>/dev/null && git rev-pars
 
     # C. Prévision pour git commit et git push.
     fait_add=0; fait_commit=0; fait_push=0
-    printf '%s' "$entree" | grep -Eq "${git_cmd}(add|stage)${fin_cmd}" && fait_add=1
-    printf '%s' "$entree" | grep -Eq "${git_cmd}commit${fin_cmd}" && fait_commit=1
-    printf '%s' "$entree" | grep -Eq "${git_cmd}push${fin_cmd}" && fait_push=1
+    printf '%s' "$commande" | grep -Eq "${git_cmd}(add|stage)${fin_cmd}" && fait_add=1
+    printf '%s' "$commande" | grep -Eq "${git_cmd}commit${fin_cmd}" && fait_commit=1
+    printf '%s' "$commande" | grep -Eq "${git_cmd}push${fin_cmd}" && fait_push=1
     if [ "$fait_commit" = 1 ]; then
         if [ "$fait_add" = 1 ]; then examiner_commit avec_suivis avec_nouveaux; else examiner_commit avec_suivis sans_nouveaux; fi
     fi
