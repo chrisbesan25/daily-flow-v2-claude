@@ -1,0 +1,9 @@
+# Ajouté le 10 novembre 2026 (voir CLAUDE.md, « Secrets et réglages de Claude Code »).
+# Réglages personnels de Claude Code : « Oui, et ne plus demander » y enregistre la commande
+# approuvée telle quelle, mot de passe ou clé compris. Ils ne se versionnent jamais.
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Fichiers de secrets locaux : jamais dans le dépôt.
+.env
+.env.*
