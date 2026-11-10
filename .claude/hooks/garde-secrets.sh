@@ -5,7 +5,8 @@
 # Avant chaque commande Bash, il bloque (code 2) :
 #   A. toute commande qui contient une forme connue de secret (jeton GitHub, clé secrète Supabase,
 #      jeton JWT autre que anon, clé AWS ou Anthropic, clé privée, adresse de base avec mot de passe) ;
-#   B. pour git commit et git push, tout envoi qui contiendrait :
+#   B. pour git commit (ce qui serait enregistré) et git push (chacun des commits qui partiraient),
+#      tout ce qui contiendrait :
 #      1. un fichier exclu (.claude/settings.local.json, CLAUDE.local.md, .env, .env.*) ;
 #      2. un .claude/settings.json avec autre chose que la clé hooks (permissions, par exemple) ;
 #      3. une ligne ajoutée avec une forme connue de secret ou un mot de passe écrit en dur.
@@ -21,10 +22,11 @@ signaler() { problemes="${problemes}
   - $1"; }
 
 # Formes connues de secrets (expressions étendues). La clé publishable de Supabase et les jetons
-# JWT de rôle anon sont publics par conception : ils ne sont pas visés.
-SECRETS='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|sb_secret_[A-Za-z0-9_-]{10,}|AKIA[0-9A-Z]{16}|sk-ant-[A-Za-z0-9_-]{20,}|-----BEGIN ([A-Z]+ )*PRIVATE KEY-----|postgres(ql)?://[^:/@[:space:]"]+:[^@[:space:]"]+@|PGPASSWORD=[^[:space:]"$]+'
+# JWT de rôle anon sont publics par conception : ils ne sont pas visés. Les motifs sont écrits pour
+# ne pas se reconnaître eux-mêmes (PG[P]ASSWORD, variable MOTIF_MDP) : ce fichier passe son propre contrôle.
+SECRETS='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|sb_secret_[A-Za-z0-9_-]{10,}|AKIA[0-9A-Z]{16}|sk-ant-[A-Za-z0-9_-]{20,}|-----BEGIN ([A-Z]+ )*PRIVATE KEY-----|postgres(ql)?://[^:/@[:space:]"]+:[^@[:space:]"]+@|PG[P]ASSWORD=[^[:space:]"$]+'
 JWT='eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'
-MOT_DE_PASSE='(password|passwd|mot_?de_?passe)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{8,}["'"'"']'
+MOTIF_MDP='(password|passwd|mot_?de_?passe)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{8,}["'"'"']'
 
 # Rôle d'un jeton JWT, lu dans sa partie centrale (base64url), sans afficher le jeton.
 role_jwt() {
@@ -50,46 +52,62 @@ controler_texte() {
 # A. La commande elle-même.
 controler_texte "$entree" "la commande"
 
-# B. git commit ou git push : contrôle de ce qui serait enregistré ou envoyé.
-if printf '%s' "$entree" | grep -Eq '(^|[^[:alnum:]_-])git([[:space:]]+[^[:space:];|&]+)*[[:space:]]+(commit|push)([^[:alnum:]_-]|$)'; then
-    if cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1; then
-        base=""
-        git rev-parse --verify --quiet origin/main >/dev/null && base="origin/main...HEAD"
+# Fichier exclu, puis lignes ajoutées : $1 = chemin, $2 = lignes ajoutées, $3 = moment (« à enregistrer », « à envoyer »).
+examiner_fichier() {
+    local f="$1" ajouts="$2" moment="$3"
+    case "$f" in
+        .claude/settings.local.json|*/.claude/settings.local.json|CLAUDE.local.md|*/CLAUDE.local.md|.env|*/.env|.env.*|*/.env.*)
+            signaler "$f ($moment) : fichier qui ne se versionne jamais (exclu par .gitignore)" ;;
+    esac
+    [ -z "$ajouts" ] && return 0
+    controler_texte "$ajouts" "$f ($moment, ligne ajoutée)"
+    if printf '%s' "$ajouts" | grep -Eiq -- "$MOTIF_MDP"; then
+        signaler "$f ($moment, ligne ajoutée) : mot de passe apparemment écrit en dur"
+    fi
+}
 
-        # Fichiers concernés : indexés, modifiés et suivis (cas de git commit -a), et commits pas encore sur main.
-        fichiers="$( { git diff --cached --name-only; git diff --name-only;
-                       [ -n "$base" ] && git diff --name-only "$base"; } 2>/dev/null | sort -u )"
+# .claude/settings.json : seule la clé hooks est admise. $1 = contenu, $2 = version examinée.
+examiner_reglages() {
+    local autres
+    if command -v jq >/dev/null 2>&1; then
+        autres="$(printf '%s' "$1" | jq -r 'if type == "object" then (keys - ["hooks", "$schema"]) | join(", ") else "illisible" end' 2>/dev/null || echo "illisible")"
+    else
+        autres="$(printf '%s' "$1" | grep -Eo '"(permissions|allow|deny|ask|env|apiKeyHelper|additionalDirectories|defaultMode)"' | sort -u | tr '\n' ' ')"
+    fi
+    [ -n "$autres" ] && signaler ".claude/settings.json ($2) : réglage autre que hooks ($autres)"
+}
 
+lignes_ajoutees() { grep -E '^\+' | grep -vE '^\+\+\+ '; }
+
+# B. git commit ou git push. Le commit est jugé sur ce qu'il enregistrerait (index, et fichiers suivis
+# modifiés pour git commit -a) : une erreur déjà enregistrée n'empêche donc pas le commit qui la corrige.
+# L'envoi est jugé sur chacun des commits qui ne sont encore sur aucune branche en ligne : c'est ce qui
+# partirait, historique compris.
+git_cmd='(^|[^[:alnum:]_-])git([[:space:]]+[^[:space:];|&]+)*[[:space:]]+'
+fin_cmd='([^[:alnum:]_-]|$)'
+fait_commit=0; fait_push=0
+printf '%s' "$entree" | grep -Eq "${git_cmd}commit${fin_cmd}" && fait_commit=1
+printf '%s' "$entree" | grep -Eq "${git_cmd}push${fin_cmd}" && fait_push=1
+
+if [ $(( fait_commit + fait_push )) -gt 0 ] \
+   && cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1; then
+
+    if [ "$fait_commit" = 1 ]; then
         while IFS= read -r f; do
             [ -z "$f" ] && continue
-            case "$f" in
-                .claude/settings.local.json|*/.claude/settings.local.json|CLAUDE.local.md|*/CLAUDE.local.md|.env|*/.env|.env.*|*/.env.*)
-                    signaler "$f : fichier qui ne se versionne jamais (exclu par .gitignore)" ;;
-            esac
-            ajouts="$( { git diff --cached -U0 -- "$f"; git diff -U0 -- "$f";
-                         [ -n "$base" ] && git diff -U0 "$base" -- "$f"; } 2>/dev/null \
-                       | grep -E '^\+' | grep -vE '^\+\+\+ ' )"
-            [ -z "$ajouts" ] && continue
-            controler_texte "$ajouts" "$f (ligne ajoutée)"
-            if printf '%s' "$ajouts" | grep -Eiq -- "$MOT_DE_PASSE"; then
-                signaler "$f (ligne ajoutée) : mot de passe apparemment écrit en dur"
-            fi
-        done <<< "$fichiers"
+            examiner_fichier "$f" "$( { git diff --cached -U0 -- "$f"; git diff -U0 -- "$f"; } 2>/dev/null | lignes_ajoutees )" "à enregistrer"
+        done <<< "$( { git diff --cached --name-only; git diff --name-only; } 2>/dev/null | sort -u )"
+        contenu="$(git show :.claude/settings.json 2>/dev/null)" && examiner_reglages "$contenu" "index"
+        [ -f .claude/settings.json ] && examiner_reglages "$(cat .claude/settings.json)" "copie de travail"
+    fi
 
-        # .claude/settings.json : seule la clé hooks est admise, dans l'index comme dans la copie de travail.
-        for version in index copie; do
-            if [ "$version" = index ]; then
-                contenu="$(git show :.claude/settings.json 2>/dev/null)" || continue
-            else
-                [ -f .claude/settings.json ] || continue
-                contenu="$(cat .claude/settings.json)"
-            fi
-            if command -v jq >/dev/null 2>&1; then
-                autres="$(printf '%s' "$contenu" | jq -r 'if type == "object" then (keys - ["hooks", "$schema"]) | join(", ") else "illisible" end' 2>/dev/null || echo "illisible")"
-            else
-                autres="$(printf '%s' "$contenu" | grep -Eo '"(permissions|allow|deny|ask|env|apiKeyHelper|additionalDirectories|defaultMode)"' | sort -u | tr '\n' ' ')"
-            fi
-            [ -n "$autres" ] && signaler ".claude/settings.json ($version) : réglage autre que hooks ($autres)"
+    if [ "$fait_push" = 1 ]; then
+        while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            examiner_fichier "$f" "$(git log -p -U0 --format= HEAD --not --remotes -- "$f" 2>/dev/null | lignes_ajoutees)" "à envoyer"
+        done <<< "$(git log --name-only --format= HEAD --not --remotes 2>/dev/null | sort -u)"
+        for c in $(git rev-list HEAD --not --remotes -- .claude/settings.json 2>/dev/null); do
+            contenu="$(git show "$c:.claude/settings.json" 2>/dev/null)" && examiner_reglages "$contenu" "commit $(git rev-parse --short "$c") à envoyer"
         done
     fi
 fi
